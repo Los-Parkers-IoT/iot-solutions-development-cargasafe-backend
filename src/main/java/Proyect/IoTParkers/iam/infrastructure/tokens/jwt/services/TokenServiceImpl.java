@@ -1,12 +1,14 @@
 package Proyect.IoTParkers.iam.infrastructure.tokens.jwt.services;
 
-
 import Proyect.IoTParkers.iam.infrastructure.tokens.jwt.BearerTokenService;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Value;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.token.Token;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,8 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.SignatureException;
 import java.util.Date;
+import java.util.function.Function;
 
 /**
  * Token service implementation for JWT tokens.
@@ -91,6 +93,7 @@ public class TokenServiceImpl implements BearerTokenService {
      * @param token the token
      * @return boolean true if the token is valid, false otherwise
      */
+
     @Override
     public boolean validateToken(String token) {
         try {
@@ -164,13 +167,5 @@ public class TokenServiceImpl implements BearerTokenService {
         return null;
     }
 
-    @Override
-    public Token allocateToken(String extendedInformation) {
-        return null;
-    }
 
-    @Override
-    public Token verifyToken(String key) {
-        return null;
-    }
 }
