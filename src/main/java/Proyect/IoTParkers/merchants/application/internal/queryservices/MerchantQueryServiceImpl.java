@@ -1,5 +1,6 @@
 package Proyect.IoTParkers.merchants.application.internal.queryservices;
 
+import Proyect.IoTParkers.merchants.domain.exceptions.MerchantNotFoundException;
 import Proyect.IoTParkers.merchants.domain.model.aggregates.Merchant;
 import Proyect.IoTParkers.merchants.domain.model.queries.GetAllMerchantsQuery;
 import Proyect.IoTParkers.merchants.domain.model.queries.GetMerchantByIdQuery;
@@ -8,7 +9,6 @@ import Proyect.IoTParkers.merchants.infrastructure.persistence.jpa.MerchantRepos
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MerchantQueryServiceImpl implements MerchantQueryService {
@@ -25,7 +25,9 @@ public class MerchantQueryServiceImpl implements MerchantQueryService {
     }
 
     @Override
-    public Optional<Merchant> handle(GetMerchantByIdQuery query) {
-        return this.merchantRepository.findById(query.id());
+    public Merchant handle(GetMerchantByIdQuery query) {
+        var merchant = this.merchantRepository.findById(query.id());
+
+        return merchant.orElseThrow(() -> new MerchantNotFoundException(query.id()));
     }
 }
