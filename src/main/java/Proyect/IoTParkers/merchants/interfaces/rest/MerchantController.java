@@ -7,8 +7,10 @@ import Proyect.IoTParkers.merchants.domain.model.queries.GetAllMerchantsQuery;
 import Proyect.IoTParkers.merchants.domain.model.queries.GetMerchantByIdQuery;
 import Proyect.IoTParkers.merchants.domain.services.MerchantCommandService;
 import Proyect.IoTParkers.merchants.domain.services.MerchantQueryService;
+import Proyect.IoTParkers.merchants.interfaces.rest.resources.AddEmployeeResource;
 import Proyect.IoTParkers.merchants.interfaces.rest.resources.CreateMerchantResource;
 import Proyect.IoTParkers.merchants.interfaces.rest.resources.MerchantResource;
+import Proyect.IoTParkers.merchants.interfaces.rest.transformers.AddEmployeeToMerchantCommandFromResourceAssembler;
 import Proyect.IoTParkers.merchants.interfaces.rest.transformers.CreateMerchantCommandFromResourceAssembler;
 import Proyect.IoTParkers.merchants.interfaces.rest.transformers.MerchantResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -100,4 +102,26 @@ public class MerchantController {
     }
 
 
+    @Operation(summary = "Add employee to merchant")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Employee added to Merchant successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "404", description = "Merchant not found")
+
+    })
+    @PostMapping("/{id}/employee")
+    public ResponseEntity<?> addEmployeeToMerchant(@PathVariable Long id, @RequestBody AddEmployeeResource resource) {
+        try {
+            var command = AddEmployeeToMerchantCommandFromResourceAssembler.toCommandFromResource(id, resource);
+            this.merchantCommandService.handle(command);
+
+            return new ResponseEntity<>(null, CREATED);
+        } catch (RuntimeException e) {
+            if (e instanceof MerchantNotFoundException) {
+                log.warn(e.getMessage());
+                return ResponseEntity.notFound().build();
+            }
+            throw e;
+        }
+    }
 }
