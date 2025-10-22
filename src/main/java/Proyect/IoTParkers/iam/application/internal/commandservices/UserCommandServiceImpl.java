@@ -7,9 +7,10 @@ import Proyect.IoTParkers.iam.domain.model.commands.SignUpCommand;
 import Proyect.IoTParkers.iam.domain.services.UserCommandService;
 import Proyect.IoTParkers.iam.infrastructure.persistence.jpa.repositories.RoleRepository;
 import Proyect.IoTParkers.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import Proyect.IoTParkers.iam.infrastructure.tokens.jwt.BearerTokenService;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.stereotype.Service;
+
 
 import java.util.Optional;
 
@@ -25,16 +26,20 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserRepository userRepository;
     private final HashingService hashingService;
-    private final TokenService tokenService;
+    private final BearerTokenService tokenService;
 
     private final RoleRepository roleRepository;
 
-    public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService, TokenService tokenService, RoleRepository roleRepository) {
+    public UserCommandServiceImpl(UserRepository userRepository,
+                                  HashingService hashingService,
+                                  BearerTokenService tokenService,
+                                  RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.tokenService = tokenService;
         this.roleRepository = roleRepository;
     }
+
 
     /**
      * Handle the sign-in command
@@ -45,15 +50,17 @@ public class UserCommandServiceImpl implements UserCommandService {
      * @return and optional containing the user matching the username and the generated token
      * @throws RuntimeException if the user is not found or the password is invalid
      */
+
     @Override
     public Optional<ImmutablePair<User, String>> handle(SignInCommand command) {
-        var user = userRepository.findByUsername(command.username());
-        if (user.isEmpty())
-            throw new RuntimeException("User not found");
-        if (!hashingService.matches(command.password(), user.get().getPassword()))
+        var user = userRepository.findByUsername(command.username())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!hashingService.matches(command.password(), user.getPassword()))
             throw new RuntimeException("Invalid password");
-        var token = tokenService.generateToken(user.get().getUsername());
-        return Optional.of(ImmutablePair.of(user.get(), token));
+
+        String token = String.valueOf(tokenService.allocateToken(user.getUsername()));
+        return Optional.of(ImmutablePair.of(user, token));
     }
 
 
@@ -65,13 +72,21 @@ public class UserCommandServiceImpl implements UserCommandService {
      * @param command the sign-up command containing the username and password
      * @return the created user
      */
+
     @Override
     public Optional<User> handle(SignUpCommand command) {
         if (userRepository.existsByUsername(command.username()))
             throw new RuntimeException("Username already exists");
-        var roles = command.roles().stream().map(role -> roleRepository.findByName(role.getName()).orElseThrow(() -> new RuntimeException("Role name not found"))).toList();
+
+        var roles = command.roles().stream()
+                .map(role -> roleRepository.findByName(role.getName())
+                        .orElseThrow(() -> new RuntimeException("Role name not found")))
+                .toList();
+
         var user = new User(command.username(), hashingService.encode(command.password()), roles);
         userRepository.save(user);
         return userRepository.findByUsername(command.username());
     }
+
+
 }
