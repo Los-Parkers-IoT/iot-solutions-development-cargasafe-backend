@@ -2,27 +2,21 @@ package Proyect.IoTParkers.iam.infrastructure.tokens.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.token.TokenService;
 
-/**
- * This interface is a marker interface for the JWT token service.
- * It extends the {@link TokenService} interface.
- * This interface is used to inject the JWT token service in the {@link Proyect.IoTParkers.iam.infrastructure.tokens.jwt.services.TokenServiceImpl} class.
- */
-public interface BearerTokenService extends TokenService {
+public interface BearerTokenService {
 
-    /**
-     * This method is responsible for extracting the JWT token from the HTTP request.
-     * @param token the HTTP request
-     * @return String the JWT token
-     */
-    String getBearerTokenFrom(HttpServletRequest token);
+    /** Extrae el Bearer token del header Authorization (o null si no está). */
+    String getBearerTokenFrom(HttpServletRequest request);
 
-    /**
-     * This method is responsible for generating a JWT token from an authentication object.
-     * @param authentication the authentication object
-     * @return String the JWT token
-     * @see Authentication
-     */
-    String generateToken(Authentication authentication);
+    /** Emite un JWT para el principal autenticado. */
+    String allocateToken(Authentication authentication);
+
+    /** Emite un JWT para el subject (username/userId). */
+    String allocateToken(String subject);
+
+    /** Obtiene el subject (username/userId) desde el JWT. */
+    String getUsernameFromToken(String token);
+
+    /** Valida firma/formato/expiración del JWT. */
+    boolean validateToken(String token);
 }
