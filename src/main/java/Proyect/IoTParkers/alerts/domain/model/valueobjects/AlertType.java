@@ -1,4 +1,4 @@
-package Proyect.IoTParkers.alerts.domain.model.entities;
+package Proyect.IoTParkers.alerts.domain.model.valueobjects;
 
 import Proyect.IoTParkers.shared.domain.model.entities.AuditableModel;
 import jakarta.persistence.Column;
@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name = "notification_channel")
-public class NotificationChannel extends AuditableModel {
+@Table(name = "alert_type")
+public class AlertType extends AuditableModel {
 
     @Column(nullable = false, unique = true)
     private String name;
 
-    public NotificationChannel(String name)
-    {
-        this.name=name;
+    public AlertType(String name){
+        this.name = name;
     }
+
 }

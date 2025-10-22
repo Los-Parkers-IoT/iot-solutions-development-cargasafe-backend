@@ -7,11 +7,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class Incident extends AuditableModel {
 
     @ManyToOne
@@ -32,7 +34,4 @@ public class Incident extends AuditableModel {
         this.closedAt = closedAt;
     }
 
-    public Incident() {
-
-    }
 }

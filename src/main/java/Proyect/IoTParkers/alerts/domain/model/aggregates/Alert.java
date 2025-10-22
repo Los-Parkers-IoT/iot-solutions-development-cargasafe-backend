@@ -1,7 +1,7 @@
 package Proyect.IoTParkers.alerts.domain.model.aggregates;
 
-import Proyect.IoTParkers.alerts.domain.model.entities.AlertStatus;
-import Proyect.IoTParkers.alerts.domain.model.entities.AlertType;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
 import Proyect.IoTParkers.alerts.domain.model.entities.Incident;
 import Proyect.IoTParkers.alerts.domain.model.entities.Notification;
 import Proyect.IoTParkers.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
