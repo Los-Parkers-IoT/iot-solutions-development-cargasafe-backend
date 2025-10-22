@@ -19,7 +19,7 @@ public class SnakeCasePhysicalNamingStrategy implements PhysicalNamingStrategy {
     }
 
     @Override
-    public Identifier toPhysicalTableName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
+    public Identifier toPhysicalTableName(Identifier identifier,   JdbcEnvironment jdbcEnvironment) {
         return this.toSnakeCase(this.toPlural(identifier));
     }
 
