@@ -19,4 +19,18 @@ public interface BearerTokenService {
 
     /** Valida firma/formato/expiración del JWT. */
     boolean validateToken(String token);
+
+    // ==== NUEVO ====
+
+    /** Emite ACCESS token con claims extra opcionales. */
+    String allocateAccessToken(String userId, java.util.Map<String, Object> extraClaims);
+
+    /** Emite REFRESH token (typ=refresh) para userId. */
+    String allocateRefreshToken(String userId);
+
+    /** Devuelve true si el token tiene claim typ=refresh. */
+    boolean isRefreshToken(String token);
+
+
+
 }

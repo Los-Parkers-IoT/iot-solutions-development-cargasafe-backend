@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -28,96 +29,122 @@ import java.util.function.Function;
  */
 @Service
 public class TokenServiceImpl implements BearerTokenService {
-    private final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
 
-    private static final String AUTHORIZATION_PARAMETER_NAME = "Authorization";
-    private static final String BEARER_TOKEN_PREFIX = "Bearer ";
-
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
     private static final int TOKEN_BEGIN_INDEX = 7;
-
 
     @Value("${authorization.jwt.secret}")
     private String secret;
 
-    @Value("${authorization.jwt.expiration.days}")
-    private int expirationDays;
+    // NUEVO: TTLS parametrizables
+    @Value("${authorization.jwt.access-ttl}")
+    private Duration accessTtl;   // PT4H
 
-    /**
-     * This method generates a JWT token from an authentication object
-     * @param authentication the authentication object
-     * @return String the JWT token
-     * @see Authentication
-     */
+    @Value("${authorization.jwt.refresh-ttl}")
+    private Duration refreshTtl;  // P1D
+
+
+    /** Emite ACCESS token tomando el subject del Authentication. */
     @Override
     public String allocateToken(Authentication authentication) {
-        return buildToken(authentication.getName());
+        String userId = authentication.getName();
+        return allocateAccessToken(userId, Map.of());
     }
 
+    /** Emite ACCESS token para userId directo. */
     @Override
     public String allocateToken(String subject) {
-        return buildToken(subject);
+        return allocateAccessToken(subject, Map.of());
     }
 
+    /** Emite ACCESS token con claims extra (ej: scope, roles, etc.). */
+    @Override
+    public String allocateAccessToken(String userId, Map<String, Object> extraClaims) {
+        return buildToken(userId, accessTtl, extraClaims);
+    }
+
+    /** Emite REFRESH token (claim typ=refresh). */
+    @Override
+    public String allocateRefreshToken(String userId) {
+        return buildToken(userId, refreshTtl, Map.of("typ", "refresh"));
+    }
+
+    /** Devuelve true si el token tiene claim typ=refresh. */
+    @Override
+    public boolean isRefreshToken(String token) {
+        try {
+            Object typ = parse(token).get("typ");
+            return "refresh".equals(typ);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Obtiene el subject (userId) desde el JWT. */
     @Override
     public String getUsernameFromToken(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /** Valida firma/formato/expiración del JWT. */
     @Override
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
             return true;
         } catch (SignatureException e) {
-            LOGGER.error("Invalid JWT signature: {}", e.getMessage());
+            LOGGER.warn("Invalid JWT signature: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            LOGGER.error("Invalid JWT: {}", e.getMessage());
+            LOGGER.warn("Invalid JWT: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            LOGGER.error("JWT expired: {}", e.getMessage());
+            LOGGER.info("JWT expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            LOGGER.error("JWT unsupported: {}", e.getMessage());
+            LOGGER.warn("JWT unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            LOGGER.error("JWT claims string is empty: {}", e.getMessage());
+            LOGGER.warn("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
     }
 
+    /** Extrae el Bearer token del header Authorization. */
     @Override
     public String getBearerTokenFrom(HttpServletRequest request) {
-        String header = request.getHeader(AUTHORIZATION_PARAMETER_NAME);
-        if (StringUtils.hasText(header) && header.startsWith(BEARER_TOKEN_PREFIX)) {
+        String header = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(header) && header.startsWith(BEARER_PREFIX)) {
             return header.substring(TOKEN_BEGIN_INDEX);
         }
         return null;
     }
 
-    // ===== Helpers internos =====
 
-    private String buildToken(String subject) {
+
+    private String buildToken(String userId, Duration ttl, Map<String, Object> claims) {
         Instant now = Instant.now();
-        Instant exp = now.plus(Duration.ofDays(expirationDays));
+        Instant exp = now.plus(ttl);
         return Jwts.builder()
-                .subject(subject)
+                .subject(userId)
+                .claims(claims)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        Claims claims = Jwts.parser()
+    private Claims parse(String token) {
+        return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return resolver.apply(claims);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        return resolver.apply(parse(token));
     }
 
     private SecretKey getSigningKey() {
-        // Secret >= 32 chars recomendado para HMAC-SHA
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 }
