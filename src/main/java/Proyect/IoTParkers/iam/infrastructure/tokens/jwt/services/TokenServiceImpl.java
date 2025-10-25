@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -62,8 +63,13 @@ public class TokenServiceImpl implements BearerTokenService {
     /** Emite ACCESS token con claims extra (ej: scope, roles, etc.). */
     @Override
     public String allocateAccessToken(String userId, Map<String, Object> extraClaims) {
-        return buildToken(userId, accessTtl, extraClaims);
+        // agrega typ=access + mezcla con extraClaims
+        var claims = new java.util.HashMap<String,Object>();
+        claims.put("typ", "access");
+        if (extraClaims != null) claims.putAll(extraClaims);
+        return buildToken(userId, accessTtl, claims);
     }
+
 
     /** Emite REFRESH token (claim typ=refresh). */
     @Override
@@ -75,11 +81,16 @@ public class TokenServiceImpl implements BearerTokenService {
     @Override
     public boolean isRefreshToken(String token) {
         try {
-            Object typ = parse(token).get("typ");
-            return "refresh".equals(typ);
+            String typ = extractClaim(token, c -> c.get("typ", String.class));
+            return "refresh".equalsIgnoreCase(typ);
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public String getJti(String token) {
+        return extractClaim(token, Claims::getId);
     }
 
     /** Obtiene el subject (userId) desde el JWT. */
@@ -126,6 +137,7 @@ public class TokenServiceImpl implements BearerTokenService {
         return Jwts.builder()
                 .subject(userId)
                 .claims(claims)
+                .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(getSigningKey())
@@ -142,6 +154,10 @@ public class TokenServiceImpl implements BearerTokenService {
 
     private <T> T extractClaim(String token, Function<Claims, T> resolver) {
         return resolver.apply(parse(token));
+    }
+
+    public Date getExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     private SecretKey getSigningKey() {

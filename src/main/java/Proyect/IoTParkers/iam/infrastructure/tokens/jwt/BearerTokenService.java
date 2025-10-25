@@ -3,6 +3,8 @@ package Proyect.IoTParkers.iam.infrastructure.tokens.jwt;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 
+import java.util.Date;
+
 public interface BearerTokenService {
 
     /** Extrae el Bearer token del header Authorization (o null si no está). */
@@ -20,7 +22,6 @@ public interface BearerTokenService {
     /** Valida firma/formato/expiración del JWT. */
     boolean validateToken(String token);
 
-    // ==== NUEVO ====
 
     /** Emite ACCESS token con claims extra opcionales. */
     String allocateAccessToken(String userId, java.util.Map<String, Object> extraClaims);
@@ -28,9 +29,8 @@ public interface BearerTokenService {
     /** Emite REFRESH token (typ=refresh) para userId. */
     String allocateRefreshToken(String userId);
 
-    /** Devuelve true si el token tiene claim typ=refresh. */
     boolean isRefreshToken(String token);
+    String getJti(String token);
 
-
-
+    Date getExpiration(String token);
 }
