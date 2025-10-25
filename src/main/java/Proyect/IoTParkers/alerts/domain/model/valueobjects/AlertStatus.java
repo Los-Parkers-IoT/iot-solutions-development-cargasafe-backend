@@ -17,4 +17,6 @@ public class AlertStatus extends AuditableModel {
     public AlertStatus(String name) {
         this.name = name;
     }
+
+    //Convertirlo en Enum
 }

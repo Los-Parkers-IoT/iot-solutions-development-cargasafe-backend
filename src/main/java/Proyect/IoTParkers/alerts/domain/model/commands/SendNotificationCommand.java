@@ -1,4 +1,4 @@
 package Proyect.IoTParkers.alerts.domain.model.commands;
 
-public class SendNotificationCommand {
+public record SendNotificationCommand (){
 }

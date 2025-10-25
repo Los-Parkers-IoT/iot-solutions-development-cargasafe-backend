@@ -20,4 +20,6 @@ public class NotificationChannel extends AuditableModel {
     {
         this.name=name;
     }
+
+    // Convertirlo en Enum
 }

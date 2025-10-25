@@ -20,4 +20,6 @@ public class AlertType extends AuditableModel {
         this.name = name;
     }
 
+    //Convertirlo en Enum
+
 }
