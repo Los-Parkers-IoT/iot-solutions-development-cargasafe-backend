@@ -10,8 +10,6 @@ public final class CreateDeviceCommandFromResourceAssembler {
                 resource.imei(),
                 resource.type() != null ? DeviceType.valueOf(resource.type()) : null,
                 resource.firmware(),
-                resource.online(),
-                resource.vehiclePlate()
-        );
+                resource.online());
     }
 }
