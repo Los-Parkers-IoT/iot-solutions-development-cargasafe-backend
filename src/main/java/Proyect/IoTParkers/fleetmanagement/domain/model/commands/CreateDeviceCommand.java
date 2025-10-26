@@ -7,8 +7,7 @@ public record CreateDeviceCommand(
         String imei,
         DeviceType type,
         String firmware,
-        Boolean online,
-        String vehiclePlate
+        Boolean online
 ) {
     public CreateDeviceCommand {
         imei = Preconditions.requireNonBlank(imei, "IMEI");
