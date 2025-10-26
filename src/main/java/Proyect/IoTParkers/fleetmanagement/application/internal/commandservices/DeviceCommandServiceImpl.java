@@ -24,31 +24,14 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
         this.deviceRepository = deviceRepository;
         this.vehicleRepository = vehicleRepository;
     }
-    
-    @Override
+
     @Transactional
+    @Override
     public Optional<Device> handle(CreateDeviceCommand command) {
-        Imei imei = new Imei(command.imei());
-        
+        var imei = new Imei(command.imei());
         if (deviceRepository.existsByImei(imei)) {
             throw new DeviceImeiAlreadyExistsException(command.imei());
         }
-        
-        // Si se proporciona vehiclePlate, validar que exista y no tenga device asignado
-        if (command.vehiclePlate() != null && !command.vehiclePlate().isBlank()) {
-            Plate vehiclePlate = new Plate(command.vehiclePlate());
-            var vehicle = vehicleRepository.findByPlate(vehiclePlate)
-                    .orElseThrow(() -> new VehicleNotFoundException(command.vehiclePlate()));
-            
-            if (vehicle.hasDevice()) {
-                throw new VehicleAlreadyHasDeviceException(vehicle.getId());
-            }
-            
-            // Asignar device al vehículo
-            vehicle.assignDevice(imei);
-            vehicleRepository.save(vehicle);
-        }
-        
         var device = new Device(command);
         return Optional.of(deviceRepository.save(device));
     }
