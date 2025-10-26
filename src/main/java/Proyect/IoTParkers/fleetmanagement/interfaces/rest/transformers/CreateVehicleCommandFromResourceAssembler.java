@@ -18,8 +18,6 @@ public final class CreateVehicleCommandFromResourceAssembler {
                                 .map(Capability::valueOf)
                                 .collect(Collectors.toSet()) : null,
                 resource.status() != null ? VehicleStatus.valueOf(resource.status()) : null,
-                resource.odometerKm(),
-                resource.deviceImei()
-        );
+                resource.odometerKm());
     }
 }
