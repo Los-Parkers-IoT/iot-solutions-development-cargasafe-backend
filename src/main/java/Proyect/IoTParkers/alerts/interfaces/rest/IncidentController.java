@@ -7,6 +7,7 @@ import Proyect.IoTParkers.alerts.interfaces.rest.resources.CreateIncidentFromAle
 import Proyect.IoTParkers.alerts.interfaces.rest.resources.IncidentResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.CreateIncidentFromAlertCommandFromResourceAssembler;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.IncidentResourceFromEntityAssembler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/incidents")
+@Tag(name = "Incidents", description = "Endpoint for managing incidents sources")
 public class IncidentController {
     private final IIncidentCommandService incidentCommandService;
     private final IIncidentQueryService incidentQueryService;

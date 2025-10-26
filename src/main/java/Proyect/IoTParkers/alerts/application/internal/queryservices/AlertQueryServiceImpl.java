@@ -33,11 +33,11 @@ public class AlertQueryServiceImpl implements IAlertQueryService {
 
     @Override
     public List<Alert> handle(GetAlertsByTypeQuery query) {
-        return alertRepository.findByAlertType(query.alertType)
+        return alertRepository.findByAlertType(query.type());
     }
 
     @Override
     public List<Alert> handle(GetAlertsByStatusQuery query) {
-        return alertRepository.findByAlertStatusId(query.alertStatusId());
+        return alertRepository.findByAlertStatus(query.status());
     }
 }

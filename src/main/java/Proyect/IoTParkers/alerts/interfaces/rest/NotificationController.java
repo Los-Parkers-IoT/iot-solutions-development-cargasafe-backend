@@ -7,6 +7,7 @@ import Proyect.IoTParkers.alerts.interfaces.rest.resources.NotificationResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.resources.SendNotificationResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.NotificationResourceFromEntityAssembler;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.SendNotificationCommandFromResourceAssembler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
+@Tag(name = "Notifications", description = "Endpoint for managing notifications sources")
 public class NotificationController {
 
     private final INotificationCommandService notificationCommandService;

@@ -16,6 +16,7 @@ import Proyect.IoTParkers.alerts.interfaces.rest.resources.CreateAlertResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.AcknowledgeAlertCommandFromResourceAssembler;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.AlertResourceFromEntityAssembler;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.CreateAlertCommandFromResourceAssembler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/alerts")
+@Tag(name = "Alerts", description = "Endpoint for managing alerts sources")
 public class AlertController {
 
     private final IAlertCommandService alertCommandService;
