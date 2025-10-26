@@ -9,12 +9,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
 @Entity
+@Setter
 @NoArgsConstructor
 public class Incident extends AuditableModel {
 
@@ -42,6 +44,14 @@ public class Incident extends AuditableModel {
         this.createdAt = LocalDateTime.now();
         this.acknowledgedAt = null;
         this.closedAt = null;
+    }
+
+    public void setAcknowledgedAt(LocalDateTime acknowledgedAt) {
+        this.acknowledgedAt = acknowledgedAt;
+    }
+
+    public void setClosedAt(LocalDateTime closedAt) {
+        this.closedAt = closedAt;
     }
 
 }

@@ -6,6 +6,10 @@ import Proyect.IoTParkers.alerts.interfaces.rest.resources.CreateAlertResource;
 public class CreateAlertCommandFromResourceAssembler {
 
     public static CreateAlertCommand toCommandFromResource(CreateAlertResource resource){
-        return new CreateAlertCommand(resource.alertType());
+        return new CreateAlertCommand(
+                resource.alertType(),
+                resource.description(),
+                resource.notificationChannel(),
+                resource.message());
     }
 }

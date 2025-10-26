@@ -8,6 +8,8 @@ import Proyect.IoTParkers.alerts.domain.model.commands.CreateAlertCommand;
 import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
 import Proyect.IoTParkers.alerts.domain.services.IAlertCommandService;
 import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.IAlertRepository;
+import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.IIncidentRepository;
+import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.INotificationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,9 +18,13 @@ import java.util.Optional;
 public class AlertCommandServiceImpl implements IAlertCommandService {
 
     private final IAlertRepository alertRepository;
+    private final IIncidentRepository incidentRepository;
+    private final INotificationRepository notificationRepository;
 
-    public AlertCommandServiceImpl(IAlertRepository alertRepository) {
+    public AlertCommandServiceImpl(IAlertRepository alertRepository, IIncidentRepository incidentRepository, INotificationRepository notificationRepository) {
         this.alertRepository = alertRepository;
+        this.incidentRepository = incidentRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
