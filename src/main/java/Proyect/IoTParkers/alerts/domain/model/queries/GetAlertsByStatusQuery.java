@@ -1,4 +1,6 @@
 package Proyect.IoTParkers.alerts.domain.model.queries;
 
-public record GetAlertsByStatusQuery() {
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
+
+public record GetAlertsByStatusQuery(AlertStatus status) {
 }

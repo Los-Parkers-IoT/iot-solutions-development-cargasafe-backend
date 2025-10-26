@@ -1,4 +1,4 @@
 package Proyect.IoTParkers.alerts.domain.model.commands;
 
-public record AcknowledgeAlertCommand (){
+public record AcknowledgeAlertCommand (Long alertId) {
 }

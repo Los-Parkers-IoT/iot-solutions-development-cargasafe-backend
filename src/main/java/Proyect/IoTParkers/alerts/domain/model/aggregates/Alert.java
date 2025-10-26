@@ -1,9 +1,10 @@
 package Proyect.IoTParkers.alerts.domain.model.aggregates;
 
-import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
-import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
+import Proyect.IoTParkers.alerts.domain.model.commands.CreateAlertCommand;
 import Proyect.IoTParkers.alerts.domain.model.entities.Incident;
 import Proyect.IoTParkers.alerts.domain.model.entities.Notification;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
 import Proyect.IoTParkers.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,12 +18,12 @@ import java.util.List;
 @NoArgsConstructor
 public class Alert extends AuditableAbstractAggregateRoot<Alert> {
 
-    @ManyToOne
-    @JoinColumn(name = "alert_type_id",nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AlertType alertType;
 
-    @ManyToOne
-    @JoinColumn(name = "alert_status_id",nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AlertStatus alertStatus;
 
     @OneToMany(mappedBy = "alert", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -35,4 +36,14 @@ public class Alert extends AuditableAbstractAggregateRoot<Alert> {
         this.alertType = alertType;
         this.alertStatus = alertStatus;
     }
+
+    public Alert(CreateAlertCommand command) {
+        this.alertType = command.alertType();
+        this.alertStatus = AlertStatus.OPEN;
+    }
+
+    public void acknowledge(AlertStatus newStatus) {
+        this.alertStatus = newStatus;
+    }
+
 }

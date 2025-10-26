@@ -6,6 +6,7 @@ import Proyect.IoTParkers.alerts.domain.model.queries.GetAlertsByStatusQuery;
 import Proyect.IoTParkers.alerts.domain.model.queries.GetAlertsByTypeQuery;
 import Proyect.IoTParkers.alerts.domain.model.queries.GetAllAlertsQuery;
 import Proyect.IoTParkers.alerts.domain.services.IAlertQueryService;
+import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.IAlertRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,23 +14,30 @@ import java.util.Optional;
 
 @Service
 public class AlertQueryServiceImpl implements IAlertQueryService {
+
+    private final IAlertRepository alertRepository;
+
+    public AlertQueryServiceImpl(IAlertRepository alertRepository) {
+        this.alertRepository = alertRepository;
+    }
+
     @Override
     public Optional<Alert> handle(GetAlertByIdQuery query) {
-        return Optional.empty();
+        return alertRepository.findById(query.alertId());
     }
 
     @Override
     public List<Alert> handle(GetAllAlertsQuery query) {
-        return List.of();
+        return alertRepository.findAll();
     }
 
     @Override
     public List<Alert> handle(GetAlertsByTypeQuery query) {
-        return List.of();
+        return alertRepository.findByAlertType(query.alertType)
     }
 
     @Override
     public List<Alert> handle(GetAlertsByStatusQuery query) {
-        return List.of();
+        return alertRepository.findByAlertStatusId(query.alertStatusId());
     }
 }

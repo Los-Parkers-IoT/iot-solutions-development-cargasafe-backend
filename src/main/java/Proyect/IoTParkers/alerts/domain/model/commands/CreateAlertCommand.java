@@ -1,4 +1,6 @@
 package Proyect.IoTParkers.alerts.domain.model.commands;
 
-public record CreateAlertCommand () {
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
+
+public record CreateAlertCommand (AlertType alertType) {
 }

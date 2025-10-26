@@ -1,4 +1,6 @@
 package Proyect.IoTParkers.alerts.domain.model.queries;
 
-public record GetAlertsByTypeQuery() {
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
+
+public record GetAlertsByTypeQuery(AlertType type) {
 }
