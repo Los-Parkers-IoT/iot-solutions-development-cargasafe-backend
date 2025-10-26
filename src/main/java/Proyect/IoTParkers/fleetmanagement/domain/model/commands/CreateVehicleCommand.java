@@ -12,9 +12,7 @@ public record CreateVehicleCommand(
         VehicleType type,
         Set<Capability> capabilities,
         VehicleStatus status,
-        Integer odometerKm,
-        String deviceImei
-) {
+        Integer odometerKm) {
     public CreateVehicleCommand {
         plate = Preconditions.requireNonBlank(plate, "Plate");
         Preconditions.requireNonNull(type, "VehicleType");
