@@ -7,7 +7,6 @@ public record CreateVehicleResource(
         String type,
         Set<String> capabilities,
         String status,
-        Integer odometerKm,
-        String deviceImei
+        Integer odometerKm
 ) {
 }
