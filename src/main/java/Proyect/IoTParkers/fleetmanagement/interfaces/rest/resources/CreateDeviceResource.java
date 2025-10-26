@@ -4,7 +4,6 @@ public record CreateDeviceResource(
         String imei,
         String type,
         String firmware,
-        Boolean online,
-        String vehiclePlate
+        Boolean online
 ) {
 }
