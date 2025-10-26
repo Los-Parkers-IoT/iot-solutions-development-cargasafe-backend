@@ -1,0 +1,11 @@
+package Proyect.IoTParkers.fleetmanagement.interfaces.rest.resources;
+
+import java.util.Set;
+
+public record UpdateVehicleResource(
+        String type,
+        Set<String> capabilities,
+        String status,
+        Integer odometerKm
+) {
+}
