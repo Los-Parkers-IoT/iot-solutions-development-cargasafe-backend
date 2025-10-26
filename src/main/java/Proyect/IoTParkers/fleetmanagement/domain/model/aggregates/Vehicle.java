@@ -54,7 +54,7 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
         this.capabilities = new HashSet<>(command.capabilities());
         this.status = command.status() != null ? command.status() : VehicleStatus.IN_SERVICE;
         this.odometerKm = new OdometerKm(command.odometerKm());
-        this.deviceImei = command.deviceImei() != null ? new Imei(command.deviceImei()) : null;
+        this.deviceImei = null;
     }
     
     public void updateType(VehicleType type) {
