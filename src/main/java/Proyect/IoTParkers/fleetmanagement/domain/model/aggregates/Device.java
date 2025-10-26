@@ -42,9 +42,9 @@ public class Device extends AuditableAbstractAggregateRoot<Device> {
         this.type = command.type();
         this.firmware = new FirmwareVersion(command.firmware());
         this.online = command.online() != null ? command.online() : false;
-        this.vehiclePlate = command.vehiclePlate() != null ? new Plate(command.vehiclePlate()) : null;
+        this.vehiclePlate = null;
     }
-    
+
     public void updateType(DeviceType type) {
         this.type = type;
     }
