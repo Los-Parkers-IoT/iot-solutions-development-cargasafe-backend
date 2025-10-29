@@ -11,35 +11,79 @@ import java.util.Optional;
 
 @Service
 public class MonitoringCommandServiceImpl implements IMonitoringSessionCommandService {
+
     private final IMonitoringSessionRepository monitoringSessionRepository;
+
     public MonitoringCommandServiceImpl(IMonitoringSessionRepository monitoringSessionRepository) {
         this.monitoringSessionRepository = monitoringSessionRepository;
     }
 
-
     @Override
-    public List<MonitoringSession> handle(StartMonitoringSessionCommand command) {
-        return List.of();
+    public MonitoringSession handle(StartMonitoringSessionCommand command) {
+        var activeStatus = monitoringSessionRepository.findActiveStatus()
+                .orElseThrow(() -> new IllegalStateException("Active status not found"));
 
+        var session = new MonitoringSession(command, activeStatus);
+
+        try {
+            monitoringSessionRepository.save(session);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while saving monitoring session: " + e.getMessage());
+        }
+        return session;
     }
 
     @Override
-    public List<MonitoringSession> handle(PauseMonitoringSessionCommand command) {
-        return List.of();
+    public MonitoringSession handle(PauseMonitoringSessionCommand command) {
+        var session = monitoringSessionRepository.findById(command.sessionId())
+                .orElseThrow(() -> new IllegalArgumentException("Session not found"));
+
+        var pausedStatus = monitoringSessionRepository.findPausedStatus()
+                .orElseThrow(() -> new IllegalStateException("Paused status not found"));
+
+        session.pause(pausedStatus);
+
+        try {
+            monitoringSessionRepository.save(session);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while pausing session: " + e.getMessage());
+        }
+        return session;
     }
 
     @Override
-    public List<MonitoringSession> handle(EndMonitoringSessionCommand command) {
-        return List.of();
+    public MonitoringSession handle(EndMonitoringSessionCommand command) {
+        var session = monitoringSessionRepository.findById(command.sessionId())
+                .orElseThrow(() -> new IllegalArgumentException("Session not found"));
+
+        var completedStatus = monitoringSessionRepository.findCompletedStatus()
+                .orElseThrow(() -> new IllegalStateException("Completed status not found"));
+
+        session.complete(completedStatus);
+
+        try {
+            monitoringSessionRepository.save(session);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while completing session: " + e.getMessage());
+        }
+        return session;
     }
 
     @Override
-    public List<MonitoringSession> handle(ResumeMonitoringSessionCommand command) {
-        return List.of();
-    }
+    public MonitoringSession handle(ResumeMonitoringSessionCommand command) {
+        var session = monitoringSessionRepository.findById(command.sessionId())
+                .orElseThrow(() -> new IllegalArgumentException("Session not found"));
 
-    @Override
-    public Optional<MonitoringSession> handle(UpdateMonitoringSessionCommand command) {
-        return Optional.empty();
+        var activeStatus = monitoringSessionRepository.findActiveStatus()
+                .orElseThrow(() -> new IllegalStateException("Active status not found"));
+
+        session.resume(activeStatus);
+
+        try {
+            monitoringSessionRepository.save(session);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while resuming session: " + e.getMessage());
+        }
+        return session;
     }
 }

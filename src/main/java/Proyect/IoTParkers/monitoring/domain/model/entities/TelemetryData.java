@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -19,13 +20,13 @@ public class TelemetryData extends AuditableModel {
     private Float vibration;
     private Float latitude;
     private Float longitude;
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "monitoring_session_id", referencedColumnName = "id",nullable = false)
     private MonitoringSession session;
 
-    public TelemetryData(Float temperature, Float humidity, Float vibration, Float latitude, Float longitude, Date createdAt, MonitoringSession session) {
+    public TelemetryData(Float temperature, Float humidity, Float vibration, Float latitude, Float longitude, LocalDateTime createdAt, MonitoringSession session) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.vibration = vibration;

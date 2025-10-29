@@ -2,10 +2,7 @@ package Proyect.IoTParkers.monitoring.domain.model.entities;
 
 import Proyect.IoTParkers.monitoring.domain.model.aggregates.MonitoringSession;
 import Proyect.IoTParkers.shared.domain.model.entities.AuditableModel;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,13 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "monitoring_session_status")
 public class MonitoringSessionStatus extends AuditableModel {
-    private String name;
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<MonitoringSession> sessions = new ArrayList<>();
+    @Column(nullable = false, unique = true)
+    private String name;
 
     public MonitoringSessionStatus(String name) {
         this.name = name;
     }
 }
-

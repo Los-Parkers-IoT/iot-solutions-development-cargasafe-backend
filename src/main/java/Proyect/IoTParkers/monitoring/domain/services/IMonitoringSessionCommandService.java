@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IMonitoringSessionCommandService {
-    List<MonitoringSession> handle(StartMonitoringSessionCommand command);
-    List<MonitoringSession> handle (PauseMonitoringSessionCommand command);
-    List<MonitoringSession> handle (EndMonitoringSessionCommand command);
-    List <MonitoringSession> handle (ResumeMonitoringSessionCommand command);
-    Optional<MonitoringSession> handle (UpdateMonitoringSessionCommand command);
+    MonitoringSession handle(StartMonitoringSessionCommand command);
+    MonitoringSession handle(PauseMonitoringSessionCommand command);
+    MonitoringSession handle(EndMonitoringSessionCommand command);
+    MonitoringSession handle(ResumeMonitoringSessionCommand command);
 }

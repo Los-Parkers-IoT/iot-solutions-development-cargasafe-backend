@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IMonitoringSessionQueryService {
-    List <MonitoringSession> handle(GetActiveSessionQuery query);
-    Optional<MonitoringSession> handle(GetMonitoringSessionByIdQuery query);
-    Optional<MonitoringSession> handle (GetSessionsByTripIdQuery query);
-
+    List<MonitoringSession> handle(GetActiveSessionQuery query);
+    MonitoringSession handle(GetMonitoringSessionByIdQuery query);
+    MonitoringSession handle(GetSessionsByTripIdQuery query);
 }
-

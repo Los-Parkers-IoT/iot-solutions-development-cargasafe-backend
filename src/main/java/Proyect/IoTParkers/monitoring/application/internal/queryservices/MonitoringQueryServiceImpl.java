@@ -26,12 +26,14 @@ public class MonitoringQueryServiceImpl implements IMonitoringSessionQueryServic
     }
 
     @Override
-    public Optional<MonitoringSession> handle(GetMonitoringSessionByIdQuery query) {
-        return monitoringSessionRepository.findById(query.sessionId());
+    public MonitoringSession handle(GetMonitoringSessionByIdQuery query) {
+        return monitoringSessionRepository.findById(query.sessionId())
+                .orElseThrow(() -> new RuntimeException("Monitoring session not found for id: " + query.sessionId()));
     }
 
     @Override
-    public Optional<MonitoringSession> handle(GetSessionsByTripIdQuery query) {
-        return monitoringSessionRepository.getSessionsByTripId(query.tripId());
+    public MonitoringSession handle(GetSessionsByTripIdQuery query) {
+        return monitoringSessionRepository.getSessionsByTripId(query.tripId())
+                .orElseThrow(() -> new RuntimeException("Monitoring session not found for tripId: " + query.tripId()));
     }
 }
