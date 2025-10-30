@@ -42,5 +42,13 @@ public class Subscription extends AuditableAbstractAggregateRoot<Subscription> {
         this.paymentMethod = command.paymentMethod();
     }
 
+    public void changePlan(Plan newPlan) {
+        if (this.status != PlanStatus.ACTIVE) {
+            throw  new IllegalArgumentException("Cannot change plan if subscription is not ACTIVE");
+        }
+
+        this.plan = newPlan;
+    }
+
 }
 

@@ -6,10 +6,12 @@ import Proyect.IoTParkers.subscriptions.domain.model.queries.GetSubscriptionByUs
 import Proyect.IoTParkers.subscriptions.domain.services.PlanQueryService;
 import Proyect.IoTParkers.subscriptions.domain.services.SubscriptionCommandService;
 import Proyect.IoTParkers.subscriptions.domain.services.SubscriptionQueryService;
+import Proyect.IoTParkers.subscriptions.interfaces.rest.resources.subscription.ChangePlanResource;
 import Proyect.IoTParkers.subscriptions.interfaces.rest.resources.subscription.CreateSubscriptionResource;
 import Proyect.IoTParkers.subscriptions.interfaces.rest.resources.subscription.GetSubscriptionByUserResource;
 import Proyect.IoTParkers.subscriptions.interfaces.rest.resources.subscription.SubscriptionResource;
 import Proyect.IoTParkers.subscriptions.interfaces.rest.transformers.plan.PlanResourceFromEntityAssembler;
+import Proyect.IoTParkers.subscriptions.interfaces.rest.transformers.subscription.ChangePlanCommandFromResourceAssembler;
 import Proyect.IoTParkers.subscriptions.interfaces.rest.transformers.subscription.CreateSubscriptionCommandFromResourceAssembler;
 import Proyect.IoTParkers.subscriptions.interfaces.rest.transformers.subscription.SubscriptionResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -79,4 +81,29 @@ public class SubscriptionController {
                 .build();
     }
 
+    @PutMapping("/{subscriptionId}/plan")
+    public ResponseEntity<GetSubscriptionByUserResource> changePlan(
+            @PathVariable Long subscriptionId,
+            @RequestBody ChangePlanResource resource
+    ) {
+        var command = ChangePlanCommandFromResourceAssembler
+                .toCommandFromResource(subscriptionId, resource);
+
+        var updatedSubscription = subscriptionCommandService.handle(command);
+
+        var planResource = PlanResourceFromEntityAssembler
+                .toResourceFromEntity(updatedSubscription.getPlan());
+
+        var responseBody = new GetSubscriptionByUserResource(
+                updatedSubscription.getId(),
+                updatedSubscription.getUserId(),
+                updatedSubscription.getStatus().name(),
+                updatedSubscription.getRenewal(),
+                updatedSubscription.getPaymentMethod(),
+                planResource
+        );
+
+        return ResponseEntity.ok(responseBody);
+
+    }
 }
