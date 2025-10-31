@@ -1,7 +1,7 @@
 package Proyect.IoTParkers.monitoring.domain.model.aggregates;
 
 import Proyect.IoTParkers.monitoring.domain.model.commands.StartMonitoringSessionCommand;
-import Proyect.IoTParkers.monitoring.domain.model.entities.MonitoringSessionStatus;
+import Proyect.IoTParkers.monitoring.domain.model.valueobjects.MonitoringSessionStatus;
 import Proyect.IoTParkers.monitoring.domain.model.entities.TelemetryData;
 import Proyect.IoTParkers.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -33,45 +32,45 @@ public class MonitoringSession extends AuditableAbstractAggregateRoot<Monitoring
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "monitoring_session_status_id", referencedColumnName = "id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private MonitoringSessionStatus sessionStatus;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TelemetryData> telemetry = new ArrayList<>();
 
-    public MonitoringSession(StartMonitoringSessionCommand command, MonitoringSessionStatus activeStatus) {
+    public MonitoringSession(StartMonitoringSessionCommand command) {
         this.deviceId = command.deviceId().toString();
         this.tripId = command.tripId().toString();
         this.startTime = LocalDateTime.now();
         this.createdAt = LocalDateTime.now();
-        this.sessionStatus = activeStatus;
+        this.sessionStatus = MonitoringSessionStatus.ACTIVE;
     }
 
-    public void pause(MonitoringSessionStatus pausedStatus) {
-        if (!"ACTIVE".equals(this.sessionStatus.getName())) {
-            throw new IllegalStateException("Only active sessions can be paused");
+    public void pause() {
+        if (this.sessionStatus != MonitoringSessionStatus.ACTIVE) {
+            throw new IllegalStateException("Can only pause an active session");
         }
-        this.sessionStatus = pausedStatus;
+        this.sessionStatus = MonitoringSessionStatus.PAUSED;
     }
 
-    public void resume(MonitoringSessionStatus activeStatus) {
-        if (!"PAUSED".equals(this.sessionStatus.getName())) {
-            throw new IllegalStateException("Only paused sessions can be resumed");
+    public void resume() {
+        if (this.sessionStatus != MonitoringSessionStatus.PAUSED) {
+            throw new IllegalStateException("Can only resume a paused session");
         }
-        this.sessionStatus = activeStatus;
+        this.sessionStatus = MonitoringSessionStatus.ACTIVE;
     }
 
-    public void complete(MonitoringSessionStatus completedStatus) {
-        if ("COMPLETED".equals(this.sessionStatus.getName())) {
+    public void complete() {
+        if (this.sessionStatus == MonitoringSessionStatus.COMPLETED) {
             throw new IllegalStateException("Session is already completed");
         }
-        this.sessionStatus = completedStatus;
         this.endTime = LocalDateTime.now();
+        this.sessionStatus = MonitoringSessionStatus.COMPLETED;
     }
 
     public boolean isActive() {
-        return "ACTIVE".equals(this.sessionStatus.getName());
+        return MonitoringSessionStatus.ACTIVE.equals(this.sessionStatus);
     }
 
     public void addTelemetryData(TelemetryData telemetryData) {

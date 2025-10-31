@@ -6,9 +6,6 @@ import Proyect.IoTParkers.monitoring.domain.services.IMonitoringSessionCommandSe
 import Proyect.IoTParkers.monitoring.infrastructure.persistence.jpa.IMonitoringSessionRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class MonitoringCommandServiceImpl implements IMonitoringSessionCommandService {
 
@@ -20,10 +17,7 @@ public class MonitoringCommandServiceImpl implements IMonitoringSessionCommandSe
 
     @Override
     public MonitoringSession handle(StartMonitoringSessionCommand command) {
-        var activeStatus = monitoringSessionRepository.findActiveStatus()
-                .orElseThrow(() -> new IllegalStateException("Active status not found"));
-
-        var session = new MonitoringSession(command, activeStatus);
+        var session = new MonitoringSession(command);
 
         try {
             monitoringSessionRepository.save(session);
@@ -38,10 +32,7 @@ public class MonitoringCommandServiceImpl implements IMonitoringSessionCommandSe
         var session = monitoringSessionRepository.findById(command.sessionId())
                 .orElseThrow(() -> new IllegalArgumentException("Session not found"));
 
-        var pausedStatus = monitoringSessionRepository.findPausedStatus()
-                .orElseThrow(() -> new IllegalStateException("Paused status not found"));
-
-        session.pause(pausedStatus);
+        session.pause();
 
         try {
             monitoringSessionRepository.save(session);
@@ -56,10 +47,7 @@ public class MonitoringCommandServiceImpl implements IMonitoringSessionCommandSe
         var session = monitoringSessionRepository.findById(command.sessionId())
                 .orElseThrow(() -> new IllegalArgumentException("Session not found"));
 
-        var completedStatus = monitoringSessionRepository.findCompletedStatus()
-                .orElseThrow(() -> new IllegalStateException("Completed status not found"));
-
-        session.complete(completedStatus);
+        session.complete();
 
         try {
             monitoringSessionRepository.save(session);
@@ -74,10 +62,7 @@ public class MonitoringCommandServiceImpl implements IMonitoringSessionCommandSe
         var session = monitoringSessionRepository.findById(command.sessionId())
                 .orElseThrow(() -> new IllegalArgumentException("Session not found"));
 
-        var activeStatus = monitoringSessionRepository.findActiveStatus()
-                .orElseThrow(() -> new IllegalStateException("Active status not found"));
-
-        session.resume(activeStatus);
+        session.resume();
 
         try {
             monitoringSessionRepository.save(session);
