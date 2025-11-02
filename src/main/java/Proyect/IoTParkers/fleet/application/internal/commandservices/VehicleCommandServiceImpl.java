@@ -60,80 +60,88 @@ public class VehicleCommandServiceImpl implements VehicleCommandService {
         
         return Optional.of(vehicleRepository.save(vehicle));
     }
-    
+
     @Override
     @Transactional
     public void handle(DeleteVehicleCommand command) {
         var vehicle = vehicleRepository.findById(command.id())
                 .orElseThrow(() -> new VehicleNotFoundException(command.id()));
-        
-        // Restricción: solo se permite eliminar vehículos RETIRED sin device asignado
+
+        // restricción de negocio que ya tenías:
         if (vehicle.getStatus() != VehicleStatus.RETIRED) {
             throw new IllegalStateException("Vehicle must be in RETIRED status before deletion");
         }
-        
-        if (vehicle.hasDevice()) {
-            throw new DeviceAssignmentConflictException("Cannot delete vehicle with assigned device. Unassign device first.");
+
+        // 👇 aquí estaba tu error: antes llamabas a vehicle.hasDevice()
+        // ahora el dominio expone hasAnyDevice()
+        if (vehicle.hasAnyDevice()) {
+            throw new DeviceAssignmentConflictException(
+                    "Cannot delete vehicle with assigned devices. Unassign devices first."
+            );
         }
-        
+
         vehicleRepository.delete(vehicle);
     }
-    
+
     @Override
     @Transactional
     public Optional<Vehicle> handle(AssignDeviceToVehicleCommand command) {
         var vehicle = vehicleRepository.findById(command.vehicleId())
                 .orElseThrow(() -> new VehicleNotFoundException(command.vehicleId()));
-        
+
         Imei deviceImei = new Imei(command.deviceImei());
         var device = deviceRepository.findByImei(deviceImei)
                 .orElseThrow(() -> new DeviceNotFoundException(command.deviceImei()));
-        
-        // Validar que el vehículo no esté RETIRED
+
+        // 1) regla de vehículo
         if (vehicle.getStatus() == VehicleStatus.RETIRED) {
             throw new IllegalStateException("Cannot assign device to RETIRED vehicle");
         }
-        
-        // Validar que el vehículo no tenga device asignado
-        if (vehicle.hasDevice()) {
-            throw new VehicleAlreadyHasDeviceException(command.vehicleId());
-        }
-        
-        // Validar que el device no esté asignado a otro vehículo
-        if (device.isAssigned()) {
+
+        // 2) regla de device: un device no puede estar en otro vehículo
+        if (device.isAssigned()
+                && !device.getVehiclePlate().equals(vehicle.getPlate())) {
             throw new DeviceAlreadyAssignedException(command.deviceImei());
         }
-        
-        // Asignar ambas direcciones de la relación
+
+        // 3) ACTUALIZO EL DOMINIO VEHICLE (esto te faltaba)
         vehicle.assignDevice(deviceImei);
+
+        // 4) ACTUALIZO EL DEVICE (lo anclo a la placa)
         device.assignToVehicle(vehicle.getPlate());
-        
+
+        // 5) persisto ambos
         vehicleRepository.save(vehicle);
         deviceRepository.save(device);
-        
+
         return Optional.of(vehicle);
     }
-    
+
     @Override
     @Transactional
     public Optional<Vehicle> handle(UnassignDeviceFromVehicleCommand command) {
         var vehicle = vehicleRepository.findById(command.vehicleId())
                 .orElseThrow(() -> new VehicleNotFoundException(command.vehicleId()));
-        
-        if (!vehicle.hasDevice()) {
-            throw new DeviceAssignmentConflictException("Vehicle has no device assigned");
+
+        Imei deviceImei = new Imei(command.deviceImei());
+        var device = deviceRepository.findByImei(deviceImei)
+                .orElseThrow(() -> new DeviceNotFoundException(command.deviceImei()));
+
+        // validar que de verdad esté asignado a ese vehículo
+        if (!device.isAssigned() || !device.getVehiclePlate().equals(vehicle.getPlate())) {
+            throw new DeviceAssignmentConflictException("Device not assigned to this vehicle");
         }
-        
-        // Buscar el device asignado y desasignarlo
-        var device = deviceRepository.findByImei(vehicle.getDeviceImei())
-                .orElseThrow(() -> new DeviceNotFoundException(vehicle.getDeviceImei().value()));
-        
+
+        // 1) DOMINIO VEHICLE: quitar del set
+        vehicle.unassignDevice(deviceImei);
+
+        // 2) DOMINIO DEVICE: quitar la placa
         device.unassignFromVehicle();
-        vehicle.unassignDevice();
-        
-        deviceRepository.save(device);
+
         vehicleRepository.save(vehicle);
-        
+        deviceRepository.save(device);
+
         return Optional.of(vehicle);
     }
+
 }
