@@ -17,5 +17,5 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     boolean existsByPlate(Plate plate);
     List<Vehicle> findAllByStatus(VehicleStatus status);
     List<Vehicle> findAllByType(VehicleType type);
-    Optional<Vehicle> findByDeviceImei(Imei deviceImei);
+    Optional<Vehicle> findByDeviceImeis(Imei deviceImeis);
 }

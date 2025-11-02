@@ -229,24 +229,16 @@ public class VehicleController {
             @ApiResponse(responseCode = "404", description = "Vehicle not found"),
             @ApiResponse(responseCode = "409", description = "Vehicle has no device assigned")
     })
-    @PostMapping("/{id}/unassign-device")
-    public ResponseEntity<VehicleResource> unassignDeviceFromVehicle(@PathVariable Long id) {
+    @PostMapping("/{id}/unassign-device/{imei}")
+    public ResponseEntity<VehicleResource> unassignDevice(@PathVariable Long id, @PathVariable String imei) {
         try {
-            var command = new UnassignDeviceFromVehicleCommand(id);
+            var command = new UnassignDeviceFromVehicleCommand(id, imei);
             var vehicle = this.vehicleCommandService.handle(command)
                     .orElseThrow(() -> new VehicleNotFoundException(id));
             var resource = VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle);
             return ResponseEntity.ok(resource);
         } catch (RuntimeException e) {
-            if (e instanceof VehicleNotFoundException || e instanceof DeviceNotFoundException) {
-                log.warn(e.getMessage());
-                return ResponseEntity.notFound().build();
-            }
-            if (e instanceof DeviceAssignmentConflictException) {
-                log.warn(e.getMessage());
-                return ResponseEntity.status(CONFLICT).build();
-            }
-            throw e;
+            return ResponseEntity.badRequest().build();
         }
     }
 }

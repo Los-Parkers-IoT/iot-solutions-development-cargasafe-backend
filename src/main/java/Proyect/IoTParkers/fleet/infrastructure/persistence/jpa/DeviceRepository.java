@@ -16,5 +16,5 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
     boolean existsByImei(Imei imei);
     List<Device> findAllByOnline(boolean online);
     List<Device> findAllByType(DeviceType type);
-    Optional<Device> findByVehiclePlate(Plate vehiclePlate);
+    List<Device> findAllByVehiclePlate(Plate vehiclePlate);
 }
