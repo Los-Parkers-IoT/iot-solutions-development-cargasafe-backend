@@ -34,10 +34,11 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "odometer_km", nullable = false))
     private OdometerKm odometerKm;
-    
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "device_imei"))
-    private Imei deviceImei;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "vehicle_device_imeis", joinColumns = @JoinColumn(name = "vehicle_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "device_imei", nullable = false))
+    private Set<Imei> deviceImeis;
     
     public Vehicle() {
         this.plate = null;
@@ -45,7 +46,7 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
         this.capabilities = new HashSet<>();
         this.status = VehicleStatus.IN_SERVICE;
         this.odometerKm = null;
-        this.deviceImei = null;
+        this.deviceImeis = new HashSet<>();
     }
     
     public Vehicle(CreateVehicleCommand command) {
@@ -54,7 +55,7 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
         this.capabilities = new HashSet<>(command.capabilities());
         this.status = command.status() != null ? command.status() : VehicleStatus.IN_SERVICE;
         this.odometerKm = new OdometerKm(command.odometerKm());
-        this.deviceImei = null;
+        this.deviceImeis = new HashSet<>();
     }
     
     public void updateType(VehicleType type) {
@@ -81,22 +82,30 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
         }
         this.odometerKm = newOdometer;
     }
-    
+
     public void assignDevice(Imei deviceImei) {
         if (this.status == VehicleStatus.RETIRED) {
             throw new IllegalStateException("Cannot assign device to RETIRED vehicle");
         }
-        if (this.deviceImei != null) {
-            throw new IllegalStateException("Vehicle already has a device assigned");
+        if (this.deviceImeis.contains(deviceImei)) {
+            throw new IllegalStateException("Device already assigned to this vehicle");
         }
-        this.deviceImei = deviceImei;
+        this.deviceImeis.add(deviceImei);
     }
-    
-    public void unassignDevice() {
-        this.deviceImei = null;
+
+    // desasignar UN device concreto
+    public void unassignDevice(Imei deviceImei) {
+        this.deviceImeis.remove(deviceImei);
     }
-    
-    public boolean hasDevice() {
-        return this.deviceImei != null;
+
+    // ¿tiene al menos uno?
+    public boolean hasAnyDevice() {
+        return !this.deviceImeis.isEmpty();
     }
+
+    // ¿tiene este en específico?
+    public boolean hasDevice(Imei deviceImei) {
+        return this.deviceImeis.contains(deviceImei);
+    }
+
 }

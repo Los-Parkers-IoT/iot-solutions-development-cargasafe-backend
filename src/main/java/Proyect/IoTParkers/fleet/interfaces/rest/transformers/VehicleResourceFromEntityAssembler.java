@@ -1,6 +1,7 @@
 package Proyect.IoTParkers.fleet.interfaces.rest.transformers;
 
 import Proyect.IoTParkers.fleet.domain.model.aggregates.Vehicle;
+import Proyect.IoTParkers.fleet.domain.model.valueobjects.Imei;
 import Proyect.IoTParkers.fleet.interfaces.rest.resources.VehicleResource;
 
 import java.util.stream.Collectors;
@@ -16,7 +17,9 @@ public final class VehicleResourceFromEntityAssembler {
                         .collect(Collectors.toSet()),
                 entity.getStatus().name(),
                 entity.getOdometerKm().value(),
-                entity.getDeviceImei() != null ? entity.getDeviceImei().value() : null
+                entity.getDeviceImeis().stream()
+                        .map(Imei::value)
+                        .toList()
         );
     }
 }

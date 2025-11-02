@@ -1,5 +1,6 @@
 package Proyect.IoTParkers.fleet.interfaces.rest.resources;
 
+import java.util.List;
 import java.util.Set;
 
 public record VehicleResource(
@@ -9,6 +10,6 @@ public record VehicleResource(
         Set<String> capabilities,
         String status,
         Integer odometerKm,
-        String deviceImei
+        List<String> deviceImeis
 ) {
 }
