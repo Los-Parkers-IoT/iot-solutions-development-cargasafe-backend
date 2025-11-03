@@ -13,11 +13,7 @@ public class Device extends AuditableAbstractAggregateRoot<Device> {
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "imei", unique = true, nullable = false))
     private final Imei imei;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DeviceType type;
-    
+
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "firmware", nullable = false))
     private FirmwareVersion firmware;
@@ -31,7 +27,6 @@ public class Device extends AuditableAbstractAggregateRoot<Device> {
     
     public Device() {
         this.imei = null;
-        this.type = null;
         this.firmware = null;
         this.online = false;
         this.vehiclePlate = null;
@@ -39,16 +34,11 @@ public class Device extends AuditableAbstractAggregateRoot<Device> {
     
     public Device(CreateDeviceCommand command) {
         this.imei = new Imei(command.imei());
-        this.type = command.type();
         this.firmware = new FirmwareVersion(command.firmware());
         this.online = command.online() != null ? command.online() : false;
         this.vehiclePlate = null;
     }
 
-    public void updateType(DeviceType type) {
-        this.type = type;
-    }
-    
     public void updateFirmware(FirmwareVersion firmware) {
         this.firmware = firmware;
     }

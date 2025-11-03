@@ -41,10 +41,6 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
         var device = deviceRepository.findById(command.id())
                 .orElseThrow(() -> new DeviceNotFoundException(command.id()));
         
-        if (command.type() != null) {
-            device.updateType(command.type());
-        }
-        
         if (command.firmware() != null && !command.firmware().isBlank()) {
             FirmwareVersion firmware = new FirmwareVersion(command.firmware());
             device.updateFirmware(firmware);
@@ -81,5 +77,20 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
         device.updateFirmware(firmware);
         
         return Optional.of(deviceRepository.save(device));
+    }
+
+    @Override
+    public Optional<Device> handle(UpdateDeviceOnlineStatusCommand command) {
+        var deviceOptional = deviceRepository.findById(command.deviceId());
+        if (deviceOptional.isEmpty()) return Optional.empty();
+
+        var device = deviceOptional.get();
+
+        // si viene null, lo ponemos en false
+        var newOnline = command.online() != null ? command.online() : false;
+        device.updateOnline(newOnline);
+
+        var updated = deviceRepository.save(device);
+        return Optional.of(updated);
     }
 }

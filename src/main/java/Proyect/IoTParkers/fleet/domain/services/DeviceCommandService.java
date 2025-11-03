@@ -10,4 +10,6 @@ public interface DeviceCommandService {
     Optional<Device> handle(UpdateDeviceCommand command);
     void handle(DeleteDeviceCommand command);
     Optional<Device> handle(UpdateDeviceFirmwareCommand command);
+    Optional<Device> handle(UpdateDeviceOnlineStatusCommand command);
+
 }

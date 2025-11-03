@@ -3,7 +3,6 @@ package Proyect.IoTParkers.fleet.interfaces.rest;
 import Proyect.IoTParkers.fleet.domain.exceptions.*;
 import Proyect.IoTParkers.fleet.domain.model.commands.*;
 import Proyect.IoTParkers.fleet.domain.model.queries.*;
-import Proyect.IoTParkers.fleet.domain.model.valueobjects.DeviceType;
 import Proyect.IoTParkers.fleet.domain.services.DeviceCommandService;
 import Proyect.IoTParkers.fleet.domain.services.DeviceQueryService;
 import Proyect.IoTParkers.fleet.interfaces.rest.resources.*;
@@ -107,21 +106,7 @@ public class DeviceController {
                 .toList();
         return ResponseEntity.ok(resources);
     }
-    
-    @Operation(summary = "Get devices by type")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Devices returned")
-    })
-    @GetMapping("/by-type/{type}")
-    public ResponseEntity<List<DeviceResource>> getDevicesByType(@PathVariable String type) {
-        var query = new GetDevicesByTypeQuery(DeviceType.valueOf(type));
-        var devices = this.deviceQueryService.handle(query);
-        var resources = devices.stream()
-                .map(DeviceResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-        return ResponseEntity.ok(resources);
-    }
-    
+
     @Operation(summary = "Create device")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Device created successfully"),
@@ -216,5 +201,26 @@ public class DeviceController {
         }
     }
 
+
+    @Operation(summary = "Change online status from device")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device online status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Device not found")
+    })
+    @PatchMapping("/{id}/online")
+    public ResponseEntity<DeviceResource> updateOnlineStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateDeviceOnlineStatusResource resource
+    ) {
+        var command = UpdateDeviceOnlineStatusCommandFromResourceAssembler
+                .toCommandFromResource(id, resource);
+
+        var device = deviceCommandService.handle(command)
+                .orElseThrow(() -> new DeviceNotFoundException(id));
+
+        var deviceResource = DeviceResourceFromEntityAssembler.toResourceFromEntity(device);
+
+        return ResponseEntity.ok(deviceResource);
+    }
 
 }

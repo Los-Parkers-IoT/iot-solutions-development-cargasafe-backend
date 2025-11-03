@@ -39,9 +39,5 @@ public class DeviceQueryServiceImpl implements DeviceQueryService {
     public List<Device> handle(GetDevicesByOnlineQuery query) {
         return deviceRepository.findAllByOnline(query.online());
     }
-    
-    @Override
-    public List<Device> handle(GetDevicesByTypeQuery query) {
-        return deviceRepository.findAllByType(query.type());
-    }
+
 }

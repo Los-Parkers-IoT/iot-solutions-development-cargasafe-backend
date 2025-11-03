@@ -8,7 +8,6 @@ public final class DeviceResourceFromEntityAssembler {
         return new DeviceResource(
                 entity.getId(),
                 entity.getImei().value(),
-                entity.getType().name(),
                 entity.getFirmware().value(),
                 entity.isOnline(),
                 entity.getVehiclePlate() != null ? entity.getVehiclePlate().value() : null
