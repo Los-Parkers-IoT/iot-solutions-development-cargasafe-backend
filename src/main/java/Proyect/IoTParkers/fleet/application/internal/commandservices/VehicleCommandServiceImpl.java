@@ -144,4 +144,19 @@ public class VehicleCommandServiceImpl implements VehicleCommandService {
         return Optional.of(vehicle);
     }
 
+    @Override
+    @Transactional
+    public Optional<Vehicle> handle(UpdateVehicleStatusCommand command) {
+        var vehicle = vehicleRepository.findById(command.vehicleId())
+                .orElseThrow(() -> new VehicleNotFoundException(command.vehicleId()));
+
+        vehicle.updateStatus(command.status());
+
+        vehicleRepository.save(vehicle);
+
+        return Optional.of(vehicle);
+    }
+
+
+
 }
