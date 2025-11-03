@@ -1,0 +1,4 @@
+package Proyect.IoTParkers.fleet.domain.model.queries;
+
+public record GetAllVehiclesQuery() {
+}
