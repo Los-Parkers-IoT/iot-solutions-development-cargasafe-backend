@@ -11,4 +11,8 @@ public interface VehicleCommandService {
     void handle(DeleteVehicleCommand command);
     Optional<Vehicle> handle(AssignDeviceToVehicleCommand command);
     Optional<Vehicle> handle(UnassignDeviceFromVehicleCommand command);
+    Optional<Vehicle> handle(UpdateVehicleStatusCommand command);
+
+
+
 }
