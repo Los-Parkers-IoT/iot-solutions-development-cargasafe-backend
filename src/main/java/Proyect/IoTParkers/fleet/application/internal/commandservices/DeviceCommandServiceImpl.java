@@ -78,4 +78,19 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
         
         return Optional.of(deviceRepository.save(device));
     }
+
+    @Override
+    public Optional<Device> handle(UpdateDeviceOnlineStatusCommand command) {
+        var deviceOptional = deviceRepository.findById(command.deviceId());
+        if (deviceOptional.isEmpty()) return Optional.empty();
+
+        var device = deviceOptional.get();
+
+        // si viene null, lo ponemos en false
+        var newOnline = command.online() != null ? command.online() : false;
+        device.updateOnline(newOnline);
+
+        var updated = deviceRepository.save(device);
+        return Optional.of(updated);
+    }
 }
