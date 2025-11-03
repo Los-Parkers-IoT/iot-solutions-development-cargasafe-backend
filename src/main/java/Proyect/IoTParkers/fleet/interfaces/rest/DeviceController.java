@@ -202,4 +202,25 @@ public class DeviceController {
     }
 
 
+    @Operation(summary = "Change online status from device")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device online status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Device not found")
+    })
+    @PatchMapping("/{id}/online")
+    public ResponseEntity<DeviceResource> updateOnlineStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateDeviceOnlineStatusResource resource
+    ) {
+        var command = UpdateDeviceOnlineStatusCommandFromResourceAssembler
+                .toCommandFromResource(id, resource);
+
+        var device = deviceCommandService.handle(command)
+                .orElseThrow(() -> new DeviceNotFoundException(id));
+
+        var deviceResource = DeviceResourceFromEntityAssembler.toResourceFromEntity(device);
+
+        return ResponseEntity.ok(deviceResource);
+    }
+
 }
