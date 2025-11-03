@@ -241,4 +241,34 @@ public class VehicleController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+
+    @Operation(summary = "Change status from vehicle")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Vehicle status updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid status value"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found"),
+            @ApiResponse(responseCode = "409", description = "Status change not allowed (vehicle is RETIRED)")
+    })
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<VehicleResource> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateVehicleStatusResource resource) {
+
+        var command = UpdateVehicleStatusCommandFromResourceAssembler
+                .toCommandFromResource(id, resource);
+
+        var vehicle = vehicleCommandService.handle(command)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        var vehicleResource = VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle);
+
+        return ResponseEntity.ok(vehicleResource);
+    }
+
+
+
+
+
+
 }
