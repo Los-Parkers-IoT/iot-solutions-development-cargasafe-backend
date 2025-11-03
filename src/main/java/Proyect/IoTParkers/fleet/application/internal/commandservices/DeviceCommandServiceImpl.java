@@ -41,10 +41,6 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
         var device = deviceRepository.findById(command.id())
                 .orElseThrow(() -> new DeviceNotFoundException(command.id()));
         
-        if (command.type() != null) {
-            device.updateType(command.type());
-        }
-        
         if (command.firmware() != null && !command.firmware().isBlank()) {
             FirmwareVersion firmware = new FirmwareVersion(command.firmware());
             device.updateFirmware(firmware);
