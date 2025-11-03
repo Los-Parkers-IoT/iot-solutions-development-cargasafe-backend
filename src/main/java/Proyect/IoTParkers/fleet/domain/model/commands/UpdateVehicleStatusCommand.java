@@ -12,3 +12,4 @@ public record UpdateVehicleStatusCommand(Long vehicleId, VehicleStatus status) {
         }
     }
 }
+
