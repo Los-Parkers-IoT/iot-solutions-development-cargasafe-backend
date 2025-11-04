@@ -1,0 +1,4 @@
+package Proyect.IoTParkers.alerts.domain.model.commands;
+
+public record CloseAlertCommand (Long alertId) {
+}
