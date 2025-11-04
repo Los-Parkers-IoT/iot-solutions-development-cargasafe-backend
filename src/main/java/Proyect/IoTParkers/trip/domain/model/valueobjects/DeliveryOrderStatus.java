@@ -1,4 +1,5 @@
 package Proyect.IoTParkers.trip.domain.model.valueobjects;
 
-public record DeliveryOrderStatus() {
+public enum DeliveryOrderStatus {
+        PENDING, ASSIGNED, DELIVERED, CANCELED
 }

@@ -1,4 +1,5 @@
 package Proyect.IoTParkers.trip.interfaces.rest.resources;
 
-public record CreateTripResource() {
-}
+import java.time.Instant;
+
+public record CreateTripResource(Long merchantId, Instant createdAt) {}

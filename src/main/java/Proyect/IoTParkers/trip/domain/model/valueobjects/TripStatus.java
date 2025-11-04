@@ -1,4 +1,7 @@
 package Proyect.IoTParkers.trip.domain.model.valueobjects;
 
-public record TripStatus() {
+public enum TripStatus {
+
+    CREATED, IN_PROGRESS, COMPLETED, CANCELED
 }
+
