@@ -14,10 +14,10 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry
-                        .addMapping("/**") // todos los endpoints: /api/..., /docs, /swagger
+                        .addMapping("/**")
                         .allowedOrigins(
-                                "http://localhost:4200",   // Angular clásico
-                                "http://localhost:5173"    // por si usas Vite
+                                "http://localhost:4200",
+                                "http://localhost:5173"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
