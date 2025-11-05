@@ -80,6 +80,7 @@ public class WebSecurityConfiguration {
                         "/auth/refresh",
                         "/auth/revoke"
                 )
+                .cors(c -> {})
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
@@ -91,6 +92,7 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
+                .cors(c -> {})
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedRequestHandler))
                 .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
