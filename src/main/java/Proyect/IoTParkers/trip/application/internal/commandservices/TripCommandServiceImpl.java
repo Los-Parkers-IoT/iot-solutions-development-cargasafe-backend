@@ -43,10 +43,28 @@ public class TripCommandServiceImpl implements TripCommandService {
     }
 
     @Override
-    public Optional<Trip> updateStatus(UUID tripId, TripStatus status, Instant startedAtOv, Instant completedAtOv) {
+    public Optional<Trip> updateStatus(UUID tripId, TripStatus to, Instant startedAtOv, Instant completedAtOv) {
         return tripRepository.findById(tripId).map(t -> {
-            switch (status) {
-                case CREATED -> { /* no-op */ }
+            TripStatus from = t.getStatus();
+
+
+            if (from == TripStatus.COMPLETED || from == TripStatus.CANCELED) {
+                throw new ResponseStatusException(
+                        org.springframework.http.HttpStatus.CONFLICT,
+                        "Trip is already in a terminal status: " + from
+                );
+            }
+
+
+            if (!isAllowedTransition(from, to)) {
+                throw new ResponseStatusException(
+                        org.springframework.http.HttpStatus.CONFLICT,
+                        "Invalid status transition: " + from + " -> " + to
+                );
+            }
+
+
+            switch (to) {
                 case IN_PROGRESS -> {
                     if (t.getStartedAt() == null) {
                         setField(t, "startedAt", startedAtOv != null ? startedAtOv : Instant.now());
@@ -58,12 +76,29 @@ public class TripCommandServiceImpl implements TripCommandService {
                     }
                     setField(t, "completedAt", completedAtOv != null ? completedAtOv : Instant.now());
                 }
-                case CANCELED -> { /* no timestamps required */ }
+                case CANCELED -> {
+
+                }
+                case CREATED -> {
+                    throw new ResponseStatusException(
+                            org.springframework.http.HttpStatus.CONFLICT,
+                            "Invalid target status: CREATED"
+                    );
+                }
             }
-            setField(t, "status", status);
+
+            setField(t, "status", to);
             tripRepository.save(t);
             return t;
         });
+    }
+
+    private static boolean isAllowedTransition(TripStatus from, TripStatus to) {
+        return switch (from) {
+            case CREATED -> (to == TripStatus.IN_PROGRESS || to == TripStatus.CANCELED);
+            case IN_PROGRESS -> (to == TripStatus.COMPLETED || to == TripStatus.CANCELED);
+            case COMPLETED, CANCELED -> false;
+        };
     }
 
     private static void setField(Trip t, String name, Object value) {
@@ -73,7 +108,6 @@ public class TripCommandServiceImpl implements TripCommandService {
             f.set(t, value);
         } catch (Exception ignored) {}
     }
-
 
     private void assertMerchantExists(Long merchantId) {
         try {
