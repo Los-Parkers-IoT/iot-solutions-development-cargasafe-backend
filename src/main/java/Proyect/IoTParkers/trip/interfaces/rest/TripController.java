@@ -10,6 +10,7 @@ import Proyect.IoTParkers.trip.interfaces.rest.transformers.TripResourceFromEnti
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +20,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
@@ -118,6 +123,16 @@ public class TripController {
         return updated == null ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(assembler.toResource(updated));
     }
+
+    @Operation(summary = "List all trips")
+    @GetMapping
+    public List<TripResource> listAll() {
+        return tripQueryService.getAll()
+                .stream()
+                .map(assembler::toResource)
+                .toList();
+    }
+
 
 
     private void assertMerchantExists(Long merchantId) {
