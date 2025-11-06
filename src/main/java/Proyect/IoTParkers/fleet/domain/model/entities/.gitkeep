@@ -1,0 +1,4 @@
+# Fleet Management Entities
+
+This directory is reserved for future domain entities related to the Fleet Management bounded context.
+Currently, the domain model uses only aggregate roots (Vehicle and Device) without additional entities.

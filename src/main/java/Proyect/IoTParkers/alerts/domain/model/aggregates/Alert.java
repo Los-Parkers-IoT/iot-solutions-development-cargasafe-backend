@@ -71,9 +71,13 @@ public class Alert extends AuditableAbstractAggregateRoot<Alert> {
                 incident.setAcknowledgedAt(LocalDateTime.now());
             }
         }
+    }
 
-        if (newStatus == AlertStatus.CLOSED) {
-            for (Incident incident : incidents) {
+    public void close(){
+        this.alertStatus = AlertStatus.CLOSED;
+
+        for (Incident incident : incidents) {
+            if (incident.getClosedAt() == null) {
                 incident.setClosedAt(LocalDateTime.now());
             }
         }

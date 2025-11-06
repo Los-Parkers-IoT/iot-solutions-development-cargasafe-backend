@@ -1,6 +1,5 @@
 package Proyect.IoTParkers.alerts.interfaces.rest;
 
-import Proyect.IoTParkers.alerts.domain.model.commands.AcknowledgeAlertCommand;
 import Proyect.IoTParkers.alerts.domain.model.commands.CreateAlertCommand;
 import Proyect.IoTParkers.alerts.domain.model.queries.GetAlertByIdQuery;
 import Proyect.IoTParkers.alerts.domain.model.queries.GetAlertsByStatusQuery;
@@ -10,11 +9,11 @@ import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
 import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
 import Proyect.IoTParkers.alerts.domain.services.IAlertCommandService;
 import Proyect.IoTParkers.alerts.domain.services.IAlertQueryService;
-import Proyect.IoTParkers.alerts.interfaces.rest.resources.AcknowledgeAlertResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.resources.AlertResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.resources.CreateAlertResource;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.AcknowledgeAlertCommandFromResourceAssembler;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.AlertResourceFromEntityAssembler;
+import Proyect.IoTParkers.alerts.interfaces.rest.transformers.CloseAlertCommandFromResourceAssembler;
 import Proyect.IoTParkers.alerts.interfaces.rest.transformers.CreateAlertCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -50,11 +49,9 @@ public class AlertController {
     }
 
     @PatchMapping("/{alertId}/acknowledge")
-    public ResponseEntity<AlertResource> acknowledgeAlert(
-            @PathVariable Long alertId,
-            @RequestBody(required = false) AcknowledgeAlertResource resource) {
+    public ResponseEntity<AlertResource> acknowledgeAlert(@PathVariable Long alertId) {
 
-        var command = AcknowledgeAlertCommandFromResourceAssembler.toCommandFromResource(alertId, resource);
+        var command = AcknowledgeAlertCommandFromResourceAssembler.toCommandFromResource(alertId);
         var updatedAlert = alertCommandService.handle(command);
 
         if (updatedAlert.isEmpty())
@@ -63,6 +60,19 @@ public class AlertController {
         var alertResource = AlertResourceFromEntityAssembler.toResourceFromEntity(updatedAlert.get());
         return ResponseEntity.ok(alertResource);
     }
+
+    @PatchMapping("/{alertId}/close")
+    public ResponseEntity<AlertResource> closeAlert(@PathVariable Long alertId) {
+        var command = CloseAlertCommandFromResourceAssembler.toCommandFromResource(alertId);
+        var updatedAlert = alertCommandService.handle(command);
+
+        if (updatedAlert.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        var alertResource = AlertResourceFromEntityAssembler.toResourceFromEntity(updatedAlert.get());
+        return ResponseEntity.ok(alertResource);
+    }
+
     @GetMapping
     public ResponseEntity<List<AlertResource>> getAllAlerts() {
         var query = new GetAllAlertsQuery();
