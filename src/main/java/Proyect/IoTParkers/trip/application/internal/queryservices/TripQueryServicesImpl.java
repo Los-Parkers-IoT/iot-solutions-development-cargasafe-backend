@@ -9,8 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,5 +56,12 @@ public class TripQueryServicesImpl implements TripQueryService {
             return tripRepository.findByCreatedAtBetween(from, to, pageable);
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Trip> getAll() {
+        return tripRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
 }
 
