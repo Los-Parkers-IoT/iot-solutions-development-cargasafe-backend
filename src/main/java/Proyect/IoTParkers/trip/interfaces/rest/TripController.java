@@ -1,6 +1,5 @@
 package Proyect.IoTParkers.trip.interfaces.rest;
 
-import Proyect.IoTParkers.trip.domain.model.valueobjects.TripStatus;
 import Proyect.IoTParkers.trip.domain.services.TripCommandService;
 import Proyect.IoTParkers.trip.domain.services.TripQueryService;
 import Proyect.IoTParkers.trip.interfaces.rest.resources.CreateTripResource;
@@ -8,25 +7,16 @@ import Proyect.IoTParkers.trip.interfaces.rest.resources.TripResource;
 import Proyect.IoTParkers.trip.interfaces.rest.resources.UpdateTripStatusResource;
 import Proyect.IoTParkers.trip.interfaces.rest.transformers.TripResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +26,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Trips", description = "Endpoint for managing trips sources")
 public class TripController {
 
     private final TripQueryService tripQueryService;
@@ -43,15 +34,13 @@ public class TripController {
     private final TripCommandService tripCommandService;
     private final Proyect.IoTParkers.trip.interfaces.rest.transformers.CreateTripCommandFromResourceAssembler createTripAssembler;
     private final Proyect.IoTParkers.trip.interfaces.rest.transformers.UpdateTripStatusCommandFromResourceAssembler updateStatusAssembler;
-
+    private final HttpClient http = HttpClient.newHttpClient();
     @Value("${integrations.merchants.base-url:http://localhost:8080}")
     private String merchantsBaseUrl;
 
-    private final HttpClient http = HttpClient.newHttpClient();
-
-    @Operation(summary="Get a trip by ID")
+    @Operation(summary = "Get a trip by ID")
     @GetMapping("/{tripId}")
-    public ResponseEntity<TripResource> getById(@PathVariable UUID tripId){
+    public ResponseEntity<TripResource> getById(@PathVariable UUID tripId) {
         return tripQueryService.getById(tripId)
                 .map(t -> ResponseEntity.ok(assembler.toResource(t)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -99,9 +88,9 @@ public class TripController {
     }
 
 
-    @Operation(summary = "Create trip ")
+    @Operation(summary = "Create trip")
     @PostMapping
-    public ResponseEntity<TripResource> create(@RequestBody CreateTripResource body){
+    public ResponseEntity<TripResource> create(@RequestBody CreateTripResource body) {
         var created = tripCommandService.create(
                 createTripAssembler.merchantId(body),
                 createTripAssembler.createdAt(body));
@@ -134,7 +123,6 @@ public class TripController {
     }
 
 
-
     private void assertMerchantExists(Long merchantId) {
         try {
             String bearer = null;
@@ -148,7 +136,8 @@ public class TripController {
             if (bearer != null && !bearer.isBlank()) reqBuilder.header("Authorization", bearer);
 
             var res = http.send(reqBuilder.build(), java.net.http.HttpResponse.BodyHandlers.discarding());
-            if (res.statusCode() == 404) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Merchant not found");
+            if (res.statusCode() == 404)
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Merchant not found");
             if (res.statusCode() < 200 || res.statusCode() >= 300)
                 throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_GATEWAY, "Merchants service error: HTTP " + res.statusCode());
         } catch (org.springframework.web.server.ResponseStatusException e) {
