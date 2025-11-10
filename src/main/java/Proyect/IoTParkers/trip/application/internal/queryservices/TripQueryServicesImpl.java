@@ -1,30 +1,31 @@
 package Proyect.IoTParkers.trip.application.internal.queryservices;
 
 import Proyect.IoTParkers.trip.domain.model.aggregates.Trip;
+import Proyect.IoTParkers.trip.domain.model.queries.GetAllTripsQuery;
+import Proyect.IoTParkers.trip.domain.model.queries.GetTripByIdQuery;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.TripStatus;
 import Proyect.IoTParkers.trip.domain.services.TripQueryService;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.TripRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
-@Transactional(readOnly = true)
-@RequiredArgsConstructor
 public class TripQueryServicesImpl implements TripQueryService {
+    @Autowired
+    private TripRepository tripRepository;
 
-    private final TripRepository tripRepository;
 
     @Override
-    public Optional<Trip> getById(UUID id) { return tripRepository.findById(id); }
+    public Optional<Trip> handle(GetTripByIdQuery query) {
+        return tripRepository.findById(query.id());
+    }
 
     @Override
     public Page<Trip> getByMerchant(Long merchantId, TripStatus status, Instant from, Instant to, Pageable pageable) {
@@ -58,8 +59,7 @@ public class TripQueryServicesImpl implements TripQueryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Trip> getAll() {
+    public List<Trip> handle(GetAllTripsQuery query) {
         return tripRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 

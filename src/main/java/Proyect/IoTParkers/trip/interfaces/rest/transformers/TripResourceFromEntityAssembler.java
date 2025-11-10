@@ -5,12 +5,11 @@ import Proyect.IoTParkers.trip.interfaces.rest.resources.TripResource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TripResourceFromEntityAssembler {
-    public TripResource toResource(Trip trip) {
+public final class TripResourceFromEntityAssembler {
+    static public TripResource toResourceFromEntity(Trip trip) {
         return new TripResource(
                 trip.getId(),
                 trip.getMerchantId(),
-                trip.getClientId(),
                 trip.getDriverId(),
                 trip.getVehicleId(),
                 trip.getStatus(),

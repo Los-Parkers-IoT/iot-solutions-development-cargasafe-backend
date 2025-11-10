@@ -3,13 +3,27 @@ package Proyect.IoTParkers.trip.domain.model.entities;
 import Proyect.IoTParkers.shared.domain.model.entities.AuditableModel;
 import Proyect.IoTParkers.trip.domain.model.aggregates.Trip;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.DeliveryOrderStatus;
+import Proyect.IoTParkers.trip.domain.model.valueobjects.Location;
+import Proyect.IoTParkers.trip.domain.model.valueobjects.OrderThresholds;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @Entity
 public class DeliveryOrder extends AuditableModel {
-    private Long externalOrderId;
+    private String clientEmail;
+    private Long sequenceOrder;
+    private LocalDateTime arrivalAt;
+
+    @Embedded
+    private OrderThresholds orderThresholds;
+
+    @Embedded
+    private Location location;
 
     @Enumerated(EnumType.STRING)
     private DeliveryOrderStatus status;
@@ -18,11 +32,7 @@ public class DeliveryOrder extends AuditableModel {
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
-    protected DeliveryOrder() {
-    }
-
-    public DeliveryOrder(Long externalOrderId, Trip trip) {
-        this.externalOrderId = externalOrderId;
-        this.trip = trip;
+    public DeliveryOrder() {
+        this.status = DeliveryOrderStatus.PENDING;
     }
 }

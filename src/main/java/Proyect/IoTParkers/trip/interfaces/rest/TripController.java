@@ -1,15 +1,18 @@
 package Proyect.IoTParkers.trip.interfaces.rest;
 
+import Proyect.IoTParkers.trip.domain.model.queries.GetAllTripsQuery;
+import Proyect.IoTParkers.trip.domain.model.queries.GetTripByIdQuery;
 import Proyect.IoTParkers.trip.domain.services.TripCommandService;
 import Proyect.IoTParkers.trip.domain.services.TripQueryService;
 import Proyect.IoTParkers.trip.interfaces.rest.resources.CreateTripResource;
 import Proyect.IoTParkers.trip.interfaces.rest.resources.TripResource;
-import Proyect.IoTParkers.trip.interfaces.rest.resources.UpdateTripStatusResource;
+import Proyect.IoTParkers.trip.interfaces.rest.transformers.CreateTripCommandFromResourceAssembler;
 import Proyect.IoTParkers.trip.interfaces.rest.transformers.TripResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.http.HttpClient;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -29,20 +31,22 @@ import java.util.UUID;
 @Tag(name = "Trips", description = "Endpoint for managing trips sources")
 public class TripController {
 
+    @Autowired
     private final TripQueryService tripQueryService;
-    private final TripResourceFromEntityAssembler assembler;
+    @Autowired
     private final TripCommandService tripCommandService;
-    private final Proyect.IoTParkers.trip.interfaces.rest.transformers.CreateTripCommandFromResourceAssembler createTripAssembler;
-    private final Proyect.IoTParkers.trip.interfaces.rest.transformers.UpdateTripStatusCommandFromResourceAssembler updateStatusAssembler;
+
     private final HttpClient http = HttpClient.newHttpClient();
     @Value("${integrations.merchants.base-url:http://localhost:8080}")
     private String merchantsBaseUrl;
 
     @Operation(summary = "Get a trip by ID")
     @GetMapping("/{tripId}")
-    public ResponseEntity<TripResource> getById(@PathVariable UUID tripId) {
-        return tripQueryService.getById(tripId)
-                .map(t -> ResponseEntity.ok(assembler.toResource(t)))
+    public ResponseEntity<TripResource> getById(@PathVariable Long tripId) {
+        var query = new GetTripByIdQuery(tripId);
+
+        return tripQueryService.handle(query)
+                .map(t -> ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(t)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -61,7 +65,7 @@ public class TripController {
                 org.springframework.data.domain.Pageable.unpaged()
         );
 
-        var list = page.map(assembler::toResource).getContent();
+        var list = page.map(TripResourceFromEntityAssembler::toResourceFromEntity).getContent();
         return ResponseEntity.ok(list);
     }
 
@@ -83,42 +87,49 @@ public class TripController {
                 org.springframework.data.domain.Pageable.unpaged()
         );
 
-        var list = page.map(assembler::toResource).getContent();
+        var list = page.map(TripResourceFromEntityAssembler::toResourceFromEntity).getContent();
         return ResponseEntity.ok(list);
     }
 
 
     @Operation(summary = "Create trip")
     @PostMapping
-    public ResponseEntity<TripResource> create(@RequestBody CreateTripResource body) {
-        var created = tripCommandService.create(
-                createTripAssembler.merchantId(body),
-                createTripAssembler.createdAt(body));
-        return ResponseEntity.ok(assembler.toResource(created));
+    public ResponseEntity<TripResource> create(@RequestBody CreateTripResource resource) {
+        var command = CreateTripCommandFromResourceAssembler.toCommandFromResource(resource);
+
+        var trip = tripCommandService.handle(command);
+
+        var response = TripResourceFromEntityAssembler.toResourceFromEntity(trip);
+
+        return ResponseEntity.ok(response);
     }
 
 
-    @Operation(summary = "Update Trip status")
-    @PatchMapping("/{tripId}/status")
-    public ResponseEntity<TripResource> updateStatus(
-            @PathVariable UUID tripId,
-            @RequestBody UpdateTripStatusResource body) {
-        var updated = tripCommandService.updateStatus(
-                tripId,
-                updateStatusAssembler.status(body),
-                updateStatusAssembler.startedAt(body),
-                updateStatusAssembler.completedAt(body)
-        ).orElse(null);
-        return updated == null ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(assembler.toResource(updated));
-    }
+//    @Operation(summary = "Update Trip status")
+//    @PatchMapping("/{tripId}/status")
+//    public ResponseEntity<TripResource> updateStatus(
+//            @PathVariable UUID tripId,
+//            @RequestBody UpdateTripStatusResource body) {
+//
+//
+//        var updated = tripCommandService.updateStatus(
+//                tripId,
+//                updateStatusAssembler.status(body),
+//                updateStatusAssembler.startedAt(body),
+//                updateStatusAssembler.completedAt(body)
+//        ).orElse(null);
+//        return updated == null ? ResponseEntity.notFound().build()
+//                : ResponseEntity.ok(assembler.toResource(updated));
+//    }
 
     @Operation(summary = "List all trips")
     @GetMapping
     public List<TripResource> listAll() {
-        return tripQueryService.getAll()
+        var query = new GetAllTripsQuery();
+
+        return tripQueryService.handle(query)
                 .stream()
-                .map(assembler::toResource)
+                .map(TripResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
     }
 

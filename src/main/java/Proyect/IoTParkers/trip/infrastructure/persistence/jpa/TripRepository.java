@@ -5,11 +5,12 @@ import Proyect.IoTParkers.trip.domain.model.valueobjects.TripStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
-import java.util.UUID;
 
-public interface TripRepository extends JpaRepository<Trip, UUID> {
+@Repository
+public interface TripRepository extends JpaRepository<Trip, Long> {
 
     Page<Trip> findByMerchantId(Long merchantId, Pageable pageable);
 

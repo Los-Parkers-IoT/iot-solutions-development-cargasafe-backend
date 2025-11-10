@@ -1,4 +1,4 @@
 package Proyect.IoTParkers.trip.domain.model.queries;
 
-public record GetTripByIdQuery() {
+public record GetTripByIdQuery(Long id) {
 }
