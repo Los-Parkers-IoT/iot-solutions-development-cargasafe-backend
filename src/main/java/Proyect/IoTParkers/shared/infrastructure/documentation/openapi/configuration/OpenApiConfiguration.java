@@ -49,7 +49,9 @@ public class OpenApiConfiguration {
 
         // Add security scheme
 
-        final String securitySchemeName = "bearerAuth";
+        //Descomentar esto para volver a activar el token en el swagger
+
+        /*final String securitySchemeName = "bearerAuth";
 
         openApi.addSecurityItem(new SecurityRequirement()
                         .addList(securitySchemeName))
@@ -61,8 +63,7 @@ public class OpenApiConfiguration {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")));
 
-        // Return OpenAPI configuration object with all the settings
-
+        // Return OpenAPI configuration object with all the settings*/
 
 
         return openApi;
