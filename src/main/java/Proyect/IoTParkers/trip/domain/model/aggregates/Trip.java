@@ -3,6 +3,7 @@ package Proyect.IoTParkers.trip.domain.model.aggregates;
 import Proyect.IoTParkers.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import Proyect.IoTParkers.trip.domain.model.commands.CreateTripCommand;
 import Proyect.IoTParkers.trip.domain.model.entities.DeliveryOrder;
+import Proyect.IoTParkers.trip.domain.model.valueobjects.DeliveryOrderStatus;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.TripStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -50,5 +51,12 @@ public class Trip extends AuditableAbstractAggregateRoot<Trip> {
     public void removeDeliveryOrder(DeliveryOrder deliveryOrder) {
         this.deliveryOrderList.remove(deliveryOrder);
         deliveryOrder.setTrip(null);
+    }
+
+    public void startTrip() {
+        this.status = TripStatus.IN_PROGRESS;
+        this.startedAt = LocalDateTime.now();
+
+        this.deliveryOrderList.forEach(o -> o.setStatus(DeliveryOrderStatus.IN_PROGRESS));
     }
 }

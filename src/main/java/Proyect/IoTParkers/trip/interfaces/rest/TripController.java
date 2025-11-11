@@ -1,5 +1,7 @@
 package Proyect.IoTParkers.trip.interfaces.rest;
 
+import Proyect.IoTParkers.trip.domain.exceptions.TripNotFoundException;
+import Proyect.IoTParkers.trip.domain.model.commands.StartTripCommand;
 import Proyect.IoTParkers.trip.domain.model.queries.GetAllTripsQuery;
 import Proyect.IoTParkers.trip.domain.model.queries.GetTripByIdQuery;
 import Proyect.IoTParkers.trip.domain.services.TripCommandService;
@@ -104,6 +106,21 @@ public class TripController {
         return ResponseEntity.ok(response);
     }
 
+
+    @PostMapping("/{tripId}/start")
+    public ResponseEntity startTrip(@PathVariable Long tripId) {
+        try {
+            tripCommandService.handle(new StartTripCommand(tripId));
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            if (e instanceof TripNotFoundException) {
+                return ResponseEntity.notFound().build();
+            }
+
+            throw new RuntimeException(e);
+        }
+    }
 
 //    @Operation(summary = "Update Trip status")
 //    @PatchMapping("/{tripId}/status")

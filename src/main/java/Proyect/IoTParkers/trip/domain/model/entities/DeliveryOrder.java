@@ -8,9 +8,11 @@ import Proyect.IoTParkers.trip.domain.model.valueobjects.OrderThresholds;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
+@ToString
 @Getter
 @Setter
 @Entity
