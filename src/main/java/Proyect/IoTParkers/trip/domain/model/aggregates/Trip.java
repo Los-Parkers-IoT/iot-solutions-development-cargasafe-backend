@@ -59,4 +59,22 @@ public class Trip extends AuditableAbstractAggregateRoot<Trip> {
 
         this.deliveryOrderList.forEach(o -> o.setStatus(DeliveryOrderStatus.IN_PROGRESS));
     }
+
+    public boolean canCompleteTrip() {
+        var noneMatchWithInProgress = this.deliveryOrderList.stream().noneMatch(o -> o.getStatus() == DeliveryOrderStatus.IN_PROGRESS);
+
+        System.out.println("noneMatchWithInProgress: " + noneMatchWithInProgress);
+
+        return this.status == TripStatus.IN_PROGRESS && noneMatchWithInProgress;
+    }
+
+    public void completeTrip() {
+        if (!canCompleteTrip())
+            return;
+
+        System.out.println("Completing trip...");
+
+        this.status = TripStatus.COMPLETED;
+        this.completedAt = LocalDateTime.now();
+    }
 }

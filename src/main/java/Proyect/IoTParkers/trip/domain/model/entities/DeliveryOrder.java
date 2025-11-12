@@ -37,4 +37,9 @@ public class DeliveryOrder extends AuditableModel {
     public DeliveryOrder() {
         this.status = DeliveryOrderStatus.PENDING;
     }
+
+    public void markAsDelivered() {
+        this.status = DeliveryOrderStatus.DELIVERED;
+        this.arrivalAt = LocalDateTime.now();
+    }
 }
