@@ -15,13 +15,12 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry
                         .addMapping("/**")
-                        .allowedOrigins(
-                                "http://localhost:4200",
-                                "http://localhost:5173"
-                        )
+                        // Usa allowedOriginPatterns en lugar de allowedOrigins porque permite patrones (wildcards) y no prohibe *
+                        .allowedOriginPatterns("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+//                        .allowCredentials(true)
+                ;
             }
         };
     }
