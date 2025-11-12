@@ -1,8 +1,10 @@
 package Proyect.IoTParkers.trip.interfaces.rest.resources;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 
 public record CreateTripResource(Long driverId, Long deviceId, Long vehicleId, Long merchantId,
-                                 List<CreateTripDeliveryOrderResource> deliveryOrders, Long originPointId) {
+                                 @Valid List<CreateTripDeliveryOrderResource> deliveryOrders, Long originPointId) {
 }

@@ -13,6 +13,7 @@ import Proyect.IoTParkers.trip.interfaces.rest.transformers.CreateTripCommandFro
 import Proyect.IoTParkers.trip.interfaces.rest.transformers.TripResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
-@Validated
 @Tag(name = "Trips", description = "Endpoint for managing trips sources")
 public class TripController {
 
@@ -99,7 +100,7 @@ public class TripController {
 
     @Operation(summary = "Create trip")
     @PostMapping
-    public ResponseEntity create(@RequestBody CreateTripResource resource) {
+    public ResponseEntity create(@Valid @RequestBody CreateTripResource resource) {
         try {
             var command = CreateTripCommandFromResourceAssembler.toCommandFromResource(resource);
             tripCommandService.handle(command);
