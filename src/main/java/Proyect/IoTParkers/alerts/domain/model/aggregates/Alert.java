@@ -34,7 +34,6 @@ public class Alert extends AuditableAbstractAggregateRoot<Alert> {
     @OneToMany(mappedBy = "alert", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Notification> notifications = new ArrayList<>();
 
-
     public Alert(AlertType alertType, AlertStatus alertStatus) {
         this.alertType = alertType;
         this.alertStatus = alertStatus;
