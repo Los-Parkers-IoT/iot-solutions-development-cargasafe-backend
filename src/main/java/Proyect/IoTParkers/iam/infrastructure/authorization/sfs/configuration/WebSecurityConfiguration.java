@@ -20,6 +20,10 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+//Para volver a activar el jwt token descomentar esta clase y comentar la clase DisableSecurityConfiguration.
+//Para volver activar la barer tohken en el swagger descomentar las lineas en OpenApiConfiguration
+
+/*
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfiguration {
@@ -99,4 +103,4 @@ public class WebSecurityConfiguration {
                 .addFilterBefore(authorizationRequestFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-}
+}*/
