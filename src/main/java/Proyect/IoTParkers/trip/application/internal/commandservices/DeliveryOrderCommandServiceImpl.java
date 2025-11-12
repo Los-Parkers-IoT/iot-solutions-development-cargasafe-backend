@@ -3,11 +3,13 @@ package Proyect.IoTParkers.trip.application.internal.commandservices;
 import Proyect.IoTParkers.trip.domain.exceptions.DeliveryOrderNotFoundException;
 import Proyect.IoTParkers.trip.domain.exceptions.TripNotFoundException;
 import Proyect.IoTParkers.trip.domain.model.commands.DeliverDeliveryOrderCommand;
+import Proyect.IoTParkers.trip.domain.model.events.TripFinishedEvent;
 import Proyect.IoTParkers.trip.domain.services.DeliveryOrderCommandService;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.DeliveryOrderRepository;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.TripRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +18,8 @@ public class DeliveryOrderCommandServiceImpl implements DeliveryOrderCommandServ
     private DeliveryOrderRepository deliveryOrderRepository;
     @Autowired
     private TripRepository tripRepository;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
 
     @Transactional
@@ -44,9 +48,8 @@ public class DeliveryOrderCommandServiceImpl implements DeliveryOrderCommandServ
 
         if (trip.canCompleteTrip()) {
             trip.completeTrip();
+            tripRepository.save(trip);
+            eventPublisher.publishEvent(new TripFinishedEvent(trip.getId()));
         }
-
-        tripRepository.save(trip);
-
     }
 }

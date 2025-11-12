@@ -43,10 +43,10 @@ public class DeliveryOrderController {
         return ResponseEntity.ok(deliveryOrders);
     }
 
-    @PostMapping("/{deliveryOrderId}")
-    public ResponseEntity markAsDelivered(Long deliveryOrderId) {
+    @PostMapping("/{id}/delivery")
+    public ResponseEntity markAsDelivered(Long id) {
         try {
-            var command = new DeliverDeliveryOrderCommand(deliveryOrderId);
+            var command = new DeliverDeliveryOrderCommand(id);
             deliveryOrderCommandService.handle(command);
 
             return ResponseEntity.ok().build();
@@ -60,5 +60,4 @@ public class DeliveryOrderController {
             throw new RuntimeException(e);
         }
     }
-
 }

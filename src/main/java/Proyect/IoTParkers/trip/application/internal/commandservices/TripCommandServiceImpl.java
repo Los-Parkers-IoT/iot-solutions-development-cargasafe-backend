@@ -5,10 +5,12 @@ import Proyect.IoTParkers.trip.domain.exceptions.TripNotFoundException;
 import Proyect.IoTParkers.trip.domain.model.aggregates.Trip;
 import Proyect.IoTParkers.trip.domain.model.commands.CreateTripCommand;
 import Proyect.IoTParkers.trip.domain.model.commands.StartTripCommand;
+import Proyect.IoTParkers.trip.domain.model.events.TripStartedEvent;
 import Proyect.IoTParkers.trip.domain.services.TripCommandService;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.OriginPointRepository;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,9 +18,11 @@ public class TripCommandServiceImpl implements TripCommandService {
 
     @Autowired
     private TripRepository tripRepository;
-
     @Autowired
     private OriginPointRepository originPointRepository;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
 
     @Override
     public Trip handle(CreateTripCommand command) {
@@ -44,7 +48,8 @@ public class TripCommandServiceImpl implements TripCommandService {
 
         var trip = maybeTrip.get();
         trip.startTrip();
-
         tripRepository.save(trip);
+
+        eventPublisher.publishEvent(new TripStartedEvent(trip.getId()));
     }
 }

@@ -67,7 +67,7 @@ public class Trip extends AuditableAbstractAggregateRoot<Trip> {
         this.status = TripStatus.IN_PROGRESS;
         this.startedAt = LocalDateTime.now();
 
-        this.deliveryOrderList.forEach(o -> o.setStatus(DeliveryOrderStatus.IN_PROGRESS));
+//        this.deliveryOrderList.forEach(o -> o.setStatus(DeliveryOrderStatus.IN_PROGRESS));
     }
 
     public boolean canCompleteTrip() {
