@@ -6,6 +6,7 @@ import Proyect.IoTParkers.trip.domain.model.valueobjects.DeliveryOrderStatus;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.Location;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.OrderThresholds;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,9 +26,11 @@ public class DeliveryOrder extends AuditableModel {
     private OrderThresholds orderThresholds;
 
     @Embedded
+    @NotNull
     private Location location;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private DeliveryOrderStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)

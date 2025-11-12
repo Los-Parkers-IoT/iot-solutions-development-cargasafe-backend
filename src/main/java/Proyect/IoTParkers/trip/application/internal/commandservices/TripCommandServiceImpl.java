@@ -9,6 +9,7 @@ import Proyect.IoTParkers.trip.domain.model.events.TripStartedEvent;
 import Proyect.IoTParkers.trip.domain.services.TripCommandService;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.OriginPointRepository;
 import Proyect.IoTParkers.trip.infrastructure.persistence.jpa.TripRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class TripCommandServiceImpl implements TripCommandService {
     private ApplicationEventPublisher eventPublisher;
 
 
+    @Transactional
     @Override
     public Trip handle(CreateTripCommand command) {
         var originPointId = command.originPointId();
