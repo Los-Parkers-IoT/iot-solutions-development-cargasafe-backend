@@ -9,9 +9,9 @@ public final class OriginPointResourceFromEntityAssembler {
         return new OriginPointResource(
                 entity.getId(),
                 entity.getName(),
-                entity.getAddress(),
-                entity.getLatitude(),
-                entity.getLongitude()
+                entity.getLocation().address(),
+                entity.getLocation().latitude(),
+                entity.getLocation().longitude()
         );
     }
 }

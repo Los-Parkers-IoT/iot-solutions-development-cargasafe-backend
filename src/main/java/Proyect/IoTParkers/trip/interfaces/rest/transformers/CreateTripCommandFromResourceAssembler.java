@@ -22,6 +22,6 @@ public final class CreateTripCommandFromResourceAssembler {
             return entity;
         }).toList();
 
-        return new CreateTripCommand(resource.driverId(), resource.deviceId(), resource.vehicleId(), resource.merchantId(), deliveryOrders);
+        return new CreateTripCommand(resource.driverId(), resource.deviceId(), resource.vehicleId(), resource.merchantId(), deliveryOrders, resource.originPointId());
     }
 }

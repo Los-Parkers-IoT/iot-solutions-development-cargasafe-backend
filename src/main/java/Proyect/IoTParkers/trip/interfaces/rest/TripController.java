@@ -1,5 +1,6 @@
 package Proyect.IoTParkers.trip.interfaces.rest;
 
+import Proyect.IoTParkers.trip.domain.exceptions.OriginPointNotFoundException;
 import Proyect.IoTParkers.trip.domain.exceptions.TripNotFoundException;
 import Proyect.IoTParkers.trip.domain.model.commands.StartTripCommand;
 import Proyect.IoTParkers.trip.domain.model.queries.GetAllTripsQuery;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.http.HttpClient;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -96,14 +99,17 @@ public class TripController {
 
     @Operation(summary = "Create trip")
     @PostMapping
-    public ResponseEntity<TripResource> create(@RequestBody CreateTripResource resource) {
-        var command = CreateTripCommandFromResourceAssembler.toCommandFromResource(resource);
-
-        var trip = tripCommandService.handle(command);
-
-        var response = TripResourceFromEntityAssembler.toResourceFromEntity(trip);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity create(@RequestBody CreateTripResource resource) {
+        try {
+            var command = CreateTripCommandFromResourceAssembler.toCommandFromResource(resource);
+            tripCommandService.handle(command);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (RuntimeException e) {
+            if (e instanceof OriginPointNotFoundException) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+            }
+            throw e;
+        }
     }
 
 
