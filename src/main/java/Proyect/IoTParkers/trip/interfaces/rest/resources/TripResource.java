@@ -3,15 +3,19 @@ package Proyect.IoTParkers.trip.interfaces.rest.resources;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.TripStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record TripResource(
         Long id,
         Long merchantId,
         Long driverId,
+        Long deviceId,
         Long vehicleId,
         TripStatus status,
         LocalDateTime createdAt,
         LocalDateTime startedAt,
-        LocalDateTime completedAt
+        LocalDateTime completedAt,
+        OriginPointResource originPoint,
+        List<DeliveryOrderResource> deliveryOrders
 ) {
 }

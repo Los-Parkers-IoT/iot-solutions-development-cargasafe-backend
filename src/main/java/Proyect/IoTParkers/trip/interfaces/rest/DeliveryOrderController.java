@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -44,8 +41,9 @@ public class DeliveryOrderController {
     }
 
     @PostMapping("/{id}/delivery")
-    public ResponseEntity markAsDelivered(Long id) {
+    public ResponseEntity markAsDelivered(@PathVariable Long id) {
         try {
+            System.out.println("Marking delivery order as delivered: " + id);
             var command = new DeliverDeliveryOrderCommand(id);
             deliveryOrderCommandService.handle(command);
 

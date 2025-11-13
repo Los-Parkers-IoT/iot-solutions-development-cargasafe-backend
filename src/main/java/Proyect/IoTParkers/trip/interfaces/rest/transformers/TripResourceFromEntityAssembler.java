@@ -11,12 +11,14 @@ public final class TripResourceFromEntityAssembler {
                 trip.getId(),
                 trip.getMerchantId(),
                 trip.getDriverId(),
+                trip.getDeviceId(),
                 trip.getVehicleId(),
                 trip.getStatus(),
                 trip.getCreatedAt(),
                 trip.getStartedAt(),
-                trip.getCompletedAt()
+                trip.getCompletedAt(),
+                OriginPointResourceFromEntityAssembler.toResourceFromEntity(trip.getOriginPoint()),
+                trip.getDeliveryOrderList().stream().map(DeliveryOrderResourceFromEntityAssembler::toResourceFromEntity).toList()
         );
     }
 }
-
