@@ -7,6 +7,7 @@ public class CreateAlertCommandFromResourceAssembler {
 
     public static CreateAlertCommand toCommandFromResource(CreateAlertResource resource){
         return new CreateAlertCommand(
+                resource.deliveryOrderId(),
                 resource.alertType(),
                 resource.description(),
                 resource.notificationChannel(),

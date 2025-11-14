@@ -3,8 +3,11 @@ package Proyect.IoTParkers.trip.domain.model.aggregates;
 import Proyect.IoTParkers.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import Proyect.IoTParkers.trip.domain.model.commands.CreateTripCommand;
 import Proyect.IoTParkers.trip.domain.model.entities.DeliveryOrder;
+import Proyect.IoTParkers.trip.domain.model.entities.OriginPoint;
+import Proyect.IoTParkers.trip.domain.model.valueobjects.DeliveryOrderStatus;
 import Proyect.IoTParkers.trip.domain.model.valueobjects.TripStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +33,10 @@ public class Trip extends AuditableAbstractAggregateRoot<Trip> {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DeliveryOrder> deliveryOrderList = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    private OriginPoint originPoint;
+
 
     public Trip(CreateTripCommand command) {
         this.merchantId = command.merchantId();
@@ -42,6 +49,10 @@ public class Trip extends AuditableAbstractAggregateRoot<Trip> {
     }
 
 
+    public void assignOriginPoint(OriginPoint originPoint) {
+        this.originPoint = originPoint;
+    }
+
     public void addDeliveryOrder(DeliveryOrder deliveryOrder) {
         this.deliveryOrderList.add(deliveryOrder);
         deliveryOrder.setTrip(this);
@@ -50,5 +61,30 @@ public class Trip extends AuditableAbstractAggregateRoot<Trip> {
     public void removeDeliveryOrder(DeliveryOrder deliveryOrder) {
         this.deliveryOrderList.remove(deliveryOrder);
         deliveryOrder.setTrip(null);
+    }
+
+    public void startTrip() {
+        this.status = TripStatus.IN_PROGRESS;
+        this.startedAt = LocalDateTime.now();
+
+//        this.deliveryOrderList.forEach(o -> o.setStatus(DeliveryOrderStatus.IN_PROGRESS));
+    }
+
+    public boolean canCompleteTrip() {
+        var noneMatchWithInProgress = this.deliveryOrderList.stream().noneMatch(o -> o.getStatus() == DeliveryOrderStatus.IN_PROGRESS);
+
+        System.out.println("noneMatchWithInProgress: " + noneMatchWithInProgress);
+
+        return this.status == TripStatus.IN_PROGRESS && noneMatchWithInProgress;
+    }
+
+    public void completeTrip() {
+        if (!canCompleteTrip())
+            return;
+
+        System.out.println("Completing trip...");
+
+        this.status = TripStatus.COMPLETED;
+        this.completedAt = LocalDateTime.now();
     }
 }

@@ -1,5 +1,8 @@
 package Proyect.IoTParkers.trip.interfaces.rest;
 
+import Proyect.IoTParkers.trip.domain.exceptions.OriginPointNotFoundException;
+import Proyect.IoTParkers.trip.domain.exceptions.TripNotFoundException;
+import Proyect.IoTParkers.trip.domain.model.commands.StartTripCommand;
 import Proyect.IoTParkers.trip.domain.model.queries.GetAllTripsQuery;
 import Proyect.IoTParkers.trip.domain.model.queries.GetTripByIdQuery;
 import Proyect.IoTParkers.trip.domain.services.TripCommandService;
@@ -10,11 +13,13 @@ import Proyect.IoTParkers.trip.interfaces.rest.transformers.CreateTripCommandFro
 import Proyect.IoTParkers.trip.interfaces.rest.transformers.TripResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +27,13 @@ import org.springframework.web.bind.annotation.*;
 import java.net.http.HttpClient;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
-@Validated
 @Tag(name = "Trips", description = "Endpoint for managing trips sources")
 public class TripController {
 
@@ -94,16 +100,34 @@ public class TripController {
 
     @Operation(summary = "Create trip")
     @PostMapping
-    public ResponseEntity<TripResource> create(@RequestBody CreateTripResource resource) {
-        var command = CreateTripCommandFromResourceAssembler.toCommandFromResource(resource);
-
-        var trip = tripCommandService.handle(command);
-
-        var response = TripResourceFromEntityAssembler.toResourceFromEntity(trip);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity create(@Valid @RequestBody CreateTripResource resource) {
+        try {
+            var command = CreateTripCommandFromResourceAssembler.toCommandFromResource(resource);
+            tripCommandService.handle(command);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (RuntimeException e) {
+            if (e instanceof OriginPointNotFoundException) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+            }
+            throw e;
+        }
     }
 
+
+    @PostMapping("/{tripId}/start")
+    public ResponseEntity startTrip(@PathVariable Long tripId) {
+        try {
+            tripCommandService.handle(new StartTripCommand(tripId));
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            if (e instanceof TripNotFoundException) {
+                return ResponseEntity.notFound().build();
+            }
+
+            throw new RuntimeException(e);
+        }
+    }
 
 //    @Operation(summary = "Update Trip status")
 //    @PatchMapping("/{tripId}/status")

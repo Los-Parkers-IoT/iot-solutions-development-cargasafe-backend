@@ -2,7 +2,9 @@ package Proyect.IoTParkers.trip.domain.model.entities;
 
 import Proyect.IoTParkers.shared.domain.model.entities.AuditableModel;
 import Proyect.IoTParkers.trip.domain.model.commands.CreateOriginPointCommand;
+import Proyect.IoTParkers.trip.domain.model.valueobjects.Location;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,15 +15,17 @@ import lombok.NoArgsConstructor;
 public class OriginPoint extends AuditableModel {
     private String name;
     @Column(columnDefinition = "TEXT")
-    private String address;
-    private Double latitude;
-    private Double longitude;
+
+    @Embedded
+    private Location location;
 
 
     public OriginPoint(CreateOriginPointCommand command) {
         this.name = command.name();
-        this.address = command.address();
-        this.latitude = command.latitude();
-        this.longitude = command.longitude();
+        this.location = new Location(
+                command.address(),
+                command.latitude(),
+                command.longitude()
+        );
     }
 }

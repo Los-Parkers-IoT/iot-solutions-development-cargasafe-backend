@@ -7,6 +7,7 @@ import java.util.List;
 
 public record AlertResource(
         Long id,
+        Long deliveryOrderId,
         AlertType alertType,
         AlertStatus alertStatus,
         List<IncidentResource> incidents,

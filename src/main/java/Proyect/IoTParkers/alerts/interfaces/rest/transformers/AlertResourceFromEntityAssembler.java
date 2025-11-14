@@ -7,6 +7,7 @@ public class AlertResourceFromEntityAssembler {
     public static AlertResource toResourceFromEntity(Alert entity) {
         return new AlertResource(
                 entity.getId(),
+                entity.getDeliveryOrderId().deliveryOrderId(),
                 entity.getAlertType(),
                 entity.getAlertStatus(),
                 entity.getIncidents().stream()
