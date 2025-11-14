@@ -15,11 +15,11 @@ public class AlertContextFacade {
     @Autowired
     private IAlertCommandService alertCommandService;
 
-    public Optional<Long> createAlert(String alertType, String description, String notificationChannel, String message) {
+    public Optional<Long> createAlert(Long deliveryOrderId,String alertType, String description, String notificationChannel, String message) {
 
         var type = AlertType.valueOf(alertType.toUpperCase());
         var notification = NotificationChannel.valueOf(notificationChannel.toUpperCase());
-        var command = new CreateAlertCommand(type, description, notification, message);
+        var command = new CreateAlertCommand(deliveryOrderId,type, description, notification, message);
         var alert = alertCommandService.handle(command);
 
         return Optional.of(alert.get().getId());

@@ -1,7 +1,7 @@
 package Proyect.IoTParkers.monitoring.application.internal.commandservices;
 
 import Proyect.IoTParkers.monitoring.application.internal.outboundservices.acl.ExternalAlertService;
-import Proyect.IoTParkers.monitoring.application.internal.outboundservices.acl.ExternalTripService;
+import Proyect.IoTParkers.shared.application.internal.outboundservices.acl.ExternalTripService;
 import Proyect.IoTParkers.monitoring.domain.model.commands.AddTelemetryDataCommand;
 import Proyect.IoTParkers.monitoring.domain.model.entities.TelemetryData;
 import Proyect.IoTParkers.monitoring.domain.services.ITelemetryDataCommandService;
@@ -57,9 +57,11 @@ public class TelemetryCommandServiceImpl implements ITelemetryDataCommandService
 
     private void processValidations(List<AclTripThresholdValidationResource> resourceList) {
         resourceList.forEach(r -> {
+            Long deliveryOrderId = r.deliveryOrderId();
+
             r.thresholdType().forEach(t -> {
                 System.out.println("Sending alert for threshold type: " + t);
-                externalAlertService.sendAlertNotification(t, "Threshold Exceeded", "EMAIL", "The " + t + " threshold has been exceeded.");
+                externalAlertService.sendAlertNotification(deliveryOrderId, t, "Threshold Exceeded", "EMAIL", "The " + t + " threshold has been exceeded.");
             });
         });
     }

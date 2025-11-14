@@ -9,7 +9,7 @@ public class ExternalAlertService {
     @Autowired
     private AlertContextFacade alertContextFacade;
 
-    public void sendAlertNotification(String alertType, String description, String notificationChannel, String message) {
-        this.alertContextFacade.createAlert(alertType, description, notificationChannel, message);
+    public void sendAlertNotification(Long deliveryOrderId, String alertType, String description, String notificationChannel, String message) {
+        this.alertContextFacade.createAlert(deliveryOrderId, alertType, description, notificationChannel, message);
     }
 }

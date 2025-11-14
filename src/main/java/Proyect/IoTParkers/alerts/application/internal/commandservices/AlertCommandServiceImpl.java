@@ -11,8 +11,8 @@ import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
 import Proyect.IoTParkers.alerts.domain.model.valueobjects.NotificationChannel;
 import Proyect.IoTParkers.alerts.domain.services.IAlertCommandService;
 import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.IAlertRepository;
-import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.IIncidentRepository;
 import Proyect.IoTParkers.alerts.infrastructure.persistence.jpa.INotificationRepository;
+import Proyect.IoTParkers.shared.application.internal.outboundservices.acl.ExternalTripService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,14 +23,23 @@ public class AlertCommandServiceImpl implements IAlertCommandService {
 
     private final IAlertRepository alertRepository;
     private final INotificationRepository notificationRepository;
+    private final ExternalTripService externalTripService;
 
-    public AlertCommandServiceImpl(IAlertRepository alertRepository, INotificationRepository notificationRepository) {
+    public AlertCommandServiceImpl(IAlertRepository alertRepository, INotificationRepository notificationRepository, ExternalTripService externalTripService) {
         this.alertRepository = alertRepository;
         this.notificationRepository = notificationRepository;
+        this.externalTripService = externalTripService;
     }
 
     @Override
     public Optional<Alert> handle(CreateAlertCommand command) {
+
+        if (!externalTripService.deliveryOrderExists(command.deliveryOrderId())) {
+            throw new AlertCreationException(
+                    "DeliveryOrder with id " + command.deliveryOrderId() + " does not exist."
+            );
+        }
+
         try{
             var alert = new Alert(command);
             var savedAlert = alertRepository.save(alert);

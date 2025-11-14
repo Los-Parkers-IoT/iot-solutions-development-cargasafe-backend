@@ -5,6 +5,7 @@ import Proyect.IoTParkers.alerts.domain.model.entities.Incident;
 import Proyect.IoTParkers.alerts.domain.model.entities.Notification;
 import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertStatus;
 import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.DeliveryOrderId;
 import Proyect.IoTParkers.alerts.domain.model.valueobjects.NotificationChannel;
 import Proyect.IoTParkers.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
@@ -34,12 +35,16 @@ public class Alert extends AuditableAbstractAggregateRoot<Alert> {
     @OneToMany(mappedBy = "alert", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Notification> notifications = new ArrayList<>();
 
+    @Embedded
+    private DeliveryOrderId deliveryOrderId;
+
     public Alert(AlertType alertType, AlertStatus alertStatus) {
         this.alertType = alertType;
         this.alertStatus = alertStatus;
     }
 
     public Alert(CreateAlertCommand command) {
+        this.deliveryOrderId = new DeliveryOrderId(command.deliveryOrderId());
         this.alertType = command.alertType();
         this.alertStatus = AlertStatus.OPEN;
 
