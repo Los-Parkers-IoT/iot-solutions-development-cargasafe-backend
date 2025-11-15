@@ -17,7 +17,7 @@ public class ExternalTripService {
     public List<AclTripThresholdValidationResource> validateTripThresholds(Long tripId, Double temperature, Double humidity) {
         var validations = this.tripContextFacade.validateTripThresholds(tripId, temperature, humidity);
 
-        System.out.println("Validations received from TripContextFacade: " + validations);
+        // System.out.println("Validations received from TripContextFacade: " + validations);
 
         return validations;
     }
