@@ -1,0 +1,28 @@
+package Proyect.IoTParkers.alerts.interfaces.acl;
+
+import Proyect.IoTParkers.alerts.domain.model.commands.CreateAlertCommand;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.AlertType;
+import Proyect.IoTParkers.alerts.domain.model.valueobjects.NotificationChannel;
+import Proyect.IoTParkers.alerts.domain.services.IAlertCommandService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class AlertContextFacade {
+
+    @Autowired
+    private IAlertCommandService alertCommandService;
+
+    public Optional<Long> createAlert(Long deliveryOrderId,String alertType, String description, String notificationChannel, String message) {
+
+        var type = AlertType.valueOf(alertType.toUpperCase());
+        var notification = NotificationChannel.valueOf(notificationChannel.toUpperCase());
+        var command = new CreateAlertCommand(deliveryOrderId,type, description, notification, message);
+        var alert = alertCommandService.handle(command);
+
+        return Optional.of(alert.get().getId());
+    }
+
+}

@@ -1,0 +1,106 @@
+package Proyect.IoTParkers.iam.infrastructure.authorization.sfs.configuration;
+
+import Proyect.IoTParkers.iam.infrastructure.authorization.sfs.pipeline.BearerAuthorizationRequestFilter;
+import Proyect.IoTParkers.iam.infrastructure.hashing.bcrypt.BCryptHashingService;
+import Proyect.IoTParkers.iam.infrastructure.tokens.InMemoryTokenBlocklist;
+import Proyect.IoTParkers.iam.infrastructure.tokens.jwt.BearerTokenService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+//Para volver a activar el jwt token descomentar esta clase y comentar la clase DisableSecurityConfiguration.
+//Para volver activar la barer tohken en el swagger descomentar las lineas en OpenApiConfiguration
+
+/*
+@Configuration
+@EnableMethodSecurity
+public class WebSecurityConfiguration {
+
+    private final UserDetailsService userDetailsService;
+    private final BearerTokenService tokenService;
+    private final BCryptHashingService hashingService;
+    private final AuthenticationEntryPoint unauthorizedRequestHandler;
+    private final InMemoryTokenBlocklist blocklist;
+
+
+    public WebSecurityConfiguration(
+            @Qualifier("defaultUserDetailsService") UserDetailsService userDetailsService,
+            BearerTokenService tokenService,
+            BCryptHashingService hashingService,
+            AuthenticationEntryPoint authenticationEntryPoint,
+            InMemoryTokenBlocklist blocklist
+    ) {
+        this.userDetailsService = userDetailsService;
+        this.tokenService = tokenService;
+        this.hashingService = hashingService;
+        this.unauthorizedRequestHandler = authenticationEntryPoint;
+        this.blocklist = blocklist;
+    }
+
+    @Bean
+    public BearerAuthorizationRequestFilter authorizationRequestFilter() {
+        return new BearerAuthorizationRequestFilter(tokenService, blocklist,userDetailsService);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        var provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(hashingService);
+        return provider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return hashingService;
+    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(
+                        "/swagger-ui/**", "/swagger-ui.html",
+                        "/v3/api-docs/**", "/api-docs/**",
+                        "/swagger-resources/**", "/webjars/**",
+                        "/api/v1/authentication/**",   // tu login/registro, etc.
+                        "/auth/refresh",
+                        "/auth/revoke"
+                )
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/**")
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedRequestHandler))
+                .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(authorizationRequestFilter(), UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}*/
